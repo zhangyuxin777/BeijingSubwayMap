@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            margin: auto;
+        }
+
+        .my-canvas {
+            position: absolute;
+            border: 1px solid #d3d3d3;
+            left: 50%;
+            background: #0e0e0e;
+            margin-left: -750px;
+        }
+    </style>
+</head>
+<body>
+<canvas id="myCanvas" width="1600" height="1500" class="my-canvas"></canvas>
+</body>
+</html>
+<script src="js/station.js"></script>
+<script>
+    /***
+     *画布大小：1000*1000
+     * 根据经纬度放大比例：1.5
+     * 经度差（不包括16号线）：0.6230510000000038
+     * 纬度差：0.5699329999999989
+     * 保留位数：小数点后三位
+     * 中心点：天安门西
+     */
+    var c = document.getElementById("myCanvas");
+    var cxt = c.getContext("2d");
+    //画一个实心圆
+
+    var colorList = ['#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40'];
+    var colorIndex = 0;
+    var currentLineIndex = 0;
+    function drawPoint(staPos) {
+        for (var i = 0; i < staPos.length; i++) {
+            var r = 4;
+            var position = 700;
+            var rate = 0.75;
+            var centerX = parseInt((parseFloat(staPos[i].cx) - parseFloat(centerPoint.cx)  ) * rate) + position;
+            var centerY = parseInt((parseFloat(staPos[i].cy) - parseFloat(centerPoint.cy) ) * rate) + position;
+            var ids = staPos[i].id.split('-');
+            var id = parseInt(ids[ids.length - 1]);
+            var color = 'white';
+            var hasLine = false;
+            if (staPos[i].transfer == 'true') {
+                color = 'red';
+            }
+            if (i != staPos.length - 1) {
+                var nextCenterX = parseInt((parseFloat(staPos[i + 1].cx) - parseFloat(centerPoint.cx)  ) * rate) + position;
+                var nextCenterY = parseInt((parseFloat(staPos[i + 1].cy) - parseFloat(centerPoint.cy) ) * rate) + position;
+                var nextIds = staPos[i + 1].id.split('-');
+                console.log(nextIds);
+                var nextId = parseInt(nextIds[nextIds.length - 1]);
+                if ((id + 1 == nextId) || (id - 1 == nextId)) {
+                    cxt.strokeStyle = colorList[colorIndex];//线条颜色：绿色
+                    cxt.lineWidth = 2;//设置线宽
+                    cxt.beginPath();
+                    cxt.moveTo(centerX, centerY);
+                    cxt.lineTo(nextCenterX, nextCenterY);
+                    cxt.closePath();//可以把这句注释掉再运行比较下不同
+                    cxt.stroke();//画线框
+                    cxt.fill();//填充颜色
+                    hasLine = true;
+                }
+                if (staPos[i].hasOwnProperty('nextStation')) {
+                    nextCenterX = parseInt((parseFloat(staPos[i]['nextStation'].cx) - parseFloat(centerPoint.cx)  ) * rate) + position;
+                    nextCenterY = parseInt((parseFloat(staPos[i]['nextStation'].cy) - parseFloat(centerPoint.cy) ) * rate) + position;
+
+                    cxt.strokeStyle = colorList[colorIndex];//线条颜色：绿色
+                    cxt.lineWidth = 2;//设置线宽
+                    cxt.beginPath();
+                    cxt.moveTo(centerX, centerY);
+                    cxt.lineTo(nextCenterX, nextCenterY);
+                    cxt.closePath();//可以把这句注释掉再运行比较下不同
+                    cxt.stroke();//画线框
+                    cxt.fill();//填充颜色
+                    hasLine = true;
+                }
+                if (!hasLine) {
+                    colorIndex++;
+                }
+            }
+            cxt.beginPath();
+            cxt.arc(centerX, centerY, r, 0, 360, false);
+            cxt.fillStyle = color;
+            cxt.fill();//画实心圆
+            cxt.closePath();
+
+        }
+    }
+    drawPoint(staPos);
+</script>
