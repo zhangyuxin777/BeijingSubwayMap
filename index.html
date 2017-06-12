@@ -12,7 +12,7 @@
             position: absolute;
             border: 1px solid #d3d3d3;
             left: 50%;
-            background: #0e0e0e;
+            background: white;
             margin-left: -750px;
         }
     </style>
@@ -35,64 +35,86 @@
     var cxt = c.getContext("2d");
     //画一个实心圆
 
-    var colorList = ['#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40', '#40bf40'];
+    var colorList = {
+        1001: 'rgb(228,120,120)',
+        1002: 'rgb(85,145,206)',
+        1004: 'rgb(23,190,176)',
+        1005: 'rgb(207, 112, 179)',
+        1006: 'rgb(226, 161, 22)',
+        1007: 'rgb(179, 143, 101)',
+        1008: 'rgb(71, 184, 82)',
+        1009: 'rgb(136, 173, 46)',
+        1010: 'rgb(59, 174, 202)',
+        1013: 'rgb(191, 126, 22)',
+        1014: 'rgb(185, 128, 128)',
+        1015: 'rgb(138, 112, 185)',
+        1016: 'rgb(90, 142, 119)',
+        1051: 'rgb(228, 120, 120)',
+        1052: 'rgb(177, 134, 164)',
+        1053: 'rgb(219, 130, 64)',
+        1054: 'rgb(177, 153, 187)',
+        1055: 'rgb(222, 89, 130)'
+    };
     var colorIndex = 0;
-    var currentLineIndex = 0;
+    var currentLineIndex = '1001';
     function drawPoint(staPos) {
         for (var i = 0; i < staPos.length; i++) {
-            var r = 4;
+            var r = 3;
             var position = 700;
             var rate = 0.75;
             var centerX = parseInt((parseFloat(staPos[i].cx) - parseFloat(centerPoint.cx)  ) * rate) + position;
             var centerY = parseInt((parseFloat(staPos[i].cy) - parseFloat(centerPoint.cy) ) * rate) + position;
-            var ids = staPos[i].id.split('-');
-            var id = parseInt(ids[ids.length - 1]);
+            var id = parseInt(staPos[i].id);
             var color = 'white';
-            var hasLine = false;
-            if (staPos[i].transfer == 'true') {
-                color = 'red';
-            }
+            var lineWidth = 2;
+            var lineIndex = staPos[i].id.substr(0, 4);
             if (i != staPos.length - 1) {
                 var nextCenterX = parseInt((parseFloat(staPos[i + 1].cx) - parseFloat(centerPoint.cx)  ) * rate) + position;
                 var nextCenterY = parseInt((parseFloat(staPos[i + 1].cy) - parseFloat(centerPoint.cy) ) * rate) + position;
-                var nextIds = staPos[i + 1].id.split('-');
-                console.log(nextIds);
-                var nextId = parseInt(nextIds[nextIds.length - 1]);
+                var nextId = parseInt(staPos[i + 1].id);
+                console.log(nextId);
                 if ((id + 1 == nextId) || (id - 1 == nextId)) {
-                    cxt.strokeStyle = colorList[colorIndex];//线条颜色：绿色
-                    cxt.lineWidth = 2;//设置线宽
+                    cxt.strokeStyle = colorList[lineIndex];//线条颜色
+                    cxt.lineWidth = lineWidth;//设置线宽
                     cxt.beginPath();
                     cxt.moveTo(centerX, centerY);
                     cxt.lineTo(nextCenterX, nextCenterY);
                     cxt.closePath();//可以把这句注释掉再运行比较下不同
                     cxt.stroke();//画线框
-                    cxt.fill();//填充颜色
-                    hasLine = true;
+//                    cxt.fill();//填充颜色
                 }
                 if (staPos[i].hasOwnProperty('nextStation')) {
                     nextCenterX = parseInt((parseFloat(staPos[i]['nextStation'].cx) - parseFloat(centerPoint.cx)  ) * rate) + position;
                     nextCenterY = parseInt((parseFloat(staPos[i]['nextStation'].cy) - parseFloat(centerPoint.cy) ) * rate) + position;
 
-                    cxt.strokeStyle = colorList[colorIndex];//线条颜色：绿色
-                    cxt.lineWidth = 2;//设置线宽
+                    cxt.strokeStyle = colorList[lineIndex];//线条颜色：绿色
+                    cxt.lineWidth = lineWidth;//设置线宽
                     cxt.beginPath();
                     cxt.moveTo(centerX, centerY);
                     cxt.lineTo(nextCenterX, nextCenterY);
                     cxt.closePath();//可以把这句注释掉再运行比较下不同
                     cxt.stroke();//画线框
                     cxt.fill();//填充颜色
-                    hasLine = true;
-                }
-                if (!hasLine) {
-                    colorIndex++;
                 }
             }
-            cxt.beginPath();
-            cxt.arc(centerX, centerY, r, 0, 360, false);
-            cxt.fillStyle = color;
-            cxt.fill();//画实心圆
-            cxt.closePath();
 
+            if (staPos[i].transfer == 'true') {
+                color = 'red';
+                r = 5;
+                cxt.beginPath();
+                cxt.arc(centerX, centerY, r, 0, 360, false);
+                cxt.fillStyle = color;
+                cxt.fill();//画实心圆
+                cxt.closePath();
+            }else{
+                cxt.beginPath();
+                cxt.arc(centerX, centerY, r, 0, 360, false);
+                cxt.fillStyle = color;
+                cxt.fill();
+                cxt.strokeStyle = colorList[lineIndex];
+                cxt.stroke();
+                cxt.closePath();
+            }
         }
     }
     drawPoint(staPos);
