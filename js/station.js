@@ -2998,7 +2998,11 @@ var staPos = [
     r: "3",
     fill: "#FFF", transfer: "false",
     strokeWidth: "1",
-    stroke: "#000"
+    stroke: "#000",
+    bezier:{
+      x:'414',
+      y:'201'
+    }
   },
   {
     cx: "414",
