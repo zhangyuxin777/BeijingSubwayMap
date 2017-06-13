@@ -28,24 +28,114 @@
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
     var colorList = {
-        1001: 'rgb(228,120,120)',
-        1002: 'rgb(85,145,206)',
-        1004: 'rgb(23,190,176)',
-        1005: 'rgb(207, 112, 179)',
-        1006: 'rgb(226, 161, 22)',
-        1007: 'rgb(179, 143, 101)',
-        1008: 'rgb(71, 184, 82)',
-        1009: 'rgb(136, 173, 46)',
-        1010: 'rgb(59, 174, 202)',
-        1013: 'rgb(191, 126, 22)',
-        1014: 'rgb(185, 128, 128)',
-        1015: 'rgb(138, 112, 185)',
-        1016: 'rgb(90, 142, 119)',
-        1051: 'rgb(228, 120, 120)',
-        1052: 'rgb(177, 134, 164)',
-        1053: 'rgb(219, 130, 64)',
-        1054: 'rgb(177, 153, 187)',
-        1055: 'rgb(222, 89, 130)'
+        1001: {
+            r: 228,
+            g: 120,
+            b: 120,
+            a: 1
+        },
+        1002: {
+            r: 85,
+            g: 145,
+            b: 206,
+            a: 1
+        },
+        1004: {
+            r: 23,
+            g: 190,
+            b: 176,
+            a: 1
+        },
+        1005: {
+            r: 207,
+            g: 112,
+            b: 179,
+            a: 1
+        },
+        1006: {
+            r: 226,
+            g: 161,
+            b: 22,
+            a: 1
+        },
+        1007: {
+            r: 179,
+            g: 143,
+            b: 101,
+            a: 1
+        },
+        1008: {
+            r: 71,
+            g: 184,
+            b: 82,
+            a: 1
+        },
+        1009: {
+            r: 136,
+            g: 173,
+            b: 46,
+            a: 1
+        },
+        1010: {
+            r: 59,
+            g: 174,
+            b: 202,
+            a: 1
+        },
+        1013: {
+            r: 191,
+            g: 126,
+            b: 22,
+            a: 1
+        },
+        1014: {
+            r: 185,
+            g: 128,
+            b: 128,
+            a: 1
+        },
+        1015: {
+            r: 138,
+            g: 112,
+            b: 185,
+            a: 1
+        },
+        1016: {
+            r: 90,
+            g: 142,
+            b: 119,
+            a: 1
+        },
+        1051: {
+            r: 228,
+            g: 120,
+            b: 120,
+            a: 1
+        },
+        1052: {
+            r: 177,
+            g: 134,
+            b: 164,
+            a: 1
+        },
+        1053: {
+            r: 219,
+            g: 130,
+            b: 64,
+            a: 1
+        },
+        1054: {
+            r: 177,
+            g: 153,
+            b: 187,
+            a: 1
+        },
+        1055: {
+            r: 222,
+            g: 89,
+            b: 130,
+            a: 1
+        }
     };
     var position = 700;
     var rate = 0.75;
@@ -55,6 +145,7 @@
     var then = Date.now();
     var interval = 1000 / fps;
     var delta;
+
 
     var RENDERER = {
         init: function () {
@@ -93,23 +184,23 @@
                     var nextId = parseInt(staPos[i + 1].id);
                     //如果id相差1 说明是同线路相邻站点 画线
                     if ((id + 1 == nextId) || (id - 1 == nextId)) {
-                        RENDERER.drawLine(RENDERER.cxt, centerX, centerY, nextCenterX, nextCenterY, 5, colorList[lineIndex], staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined)
+                        RENDERER.drawLine(RENDERER.cxt, centerX, centerY, nextCenterX, nextCenterY, 5, RENDERER.getLineColor(lineIndex), staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined)
                     }
                     // 是否存在下一站 只有在环形中有此判断 用于闭合环形
                     if (staPos[i].hasOwnProperty('nextStation')) {
                         nextCenterX = parseInt((parseFloat(staPos[i]['nextStation'].cx) - parseFloat(centerPoint.cx)  ) * rate) + position;
                         nextCenterY = parseInt((parseFloat(staPos[i]['nextStation'].cy) - parseFloat(centerPoint.cy) ) * rate) + position;
-                        RENDERER.drawLine(RENDERER.cxt, centerX, centerY, nextCenterX, nextCenterY, 5, colorList[lineIndex], staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined);
-                        RENDERER.drawPoint(RENDERER.cxt, nextCenterX, nextCenterY, 3, 1, 'white', colorList[lineIndex])
+                        RENDERER.drawLine(RENDERER.cxt, centerX, centerY, nextCenterX, nextCenterY, 5, RENDERER.getLineColor(lineIndex), staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined);
+                        RENDERER.drawPoint(RENDERER.cxt, nextCenterX, nextCenterY, 3, 1, 'white', RENDERER.getLineColor(lineIndex))
                     }
                 }
                 // 画点 换乘站
                 if (staPos[i].transfer == 'true') {
-                    RENDERER.drawPoint(RENDERER.cxt, centerX, centerY, 5, 2, 'white', 'red')
+                    RENDERER.drawPoint(RENDERER.cxt, centerX, centerY, 5, 2, 'white', 'rgba(255,0,0,' + colorList[lineIndex].a + ')')
                 } else {//画点 非换乘站
-                    RENDERER.drawPoint(RENDERER.cxt, centerX, centerY, 3, 1, 'white', colorList[lineIndex])
+                    RENDERER.drawPoint(RENDERER.cxt, centerX, centerY, 3, 1, 'white', RENDERER.getLineColor(lineIndex))
                 }
-                var nameX = parseInt((parseFloat(staPos[i].namePoint.x) - parseFloat(centerPoint.cx)-10) * rate) + position;
+                var nameX = parseInt((parseFloat(staPos[i].namePoint.x) - parseFloat(centerPoint.cx) - 10) * rate) + position;
                 var nameY = parseInt((parseFloat(staPos[i].namePoint.y) - parseFloat(centerPoint.cy)) * rate) + position;
                 RENDERER.drawText(RENDERER.cxt, nameX, nameY, staPos[i].name, 'black');
             }
@@ -157,9 +248,19 @@
             context.fillStyle = color;//线条颜色：绿色
             context.font = "6px Microsoft YaHei";
             context.fillText(text, x, y);
+        },
+        getLineColor: function (index) {
+            return 'rgba(' + colorList[index].r + ',' + colorList[index].g + ',' + colorList[index].b + ',' + colorList[index].a + ')';
+
         }
     };
     RENDERER.init();
-    console.log(JSON.stringify(staPos));
+    setTimeout(function () {
+        for (var item in colorList) {
+            colorList[item].a = 0.1;
+        }
+        colorList[1001].a = 1;
+        colorList[1002].a = 1
+    }, 2000)
 
 </script>
