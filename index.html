@@ -21,7 +21,7 @@
 <canvas id="myCanvas" width="1600" height="1500" class="my-canvas"></canvas>
 </body>
 </html>
-<script src="js/station.js"></script>
+<script src="js/stationPoint.js"></script>
 <script src="js/name.js"></script>
 <script>
 
@@ -137,7 +137,7 @@
             a: 1
         }
     };
-    var position = 700;
+    var position = 720;
     var rate = 0.75;
 
     var fps = 30;
@@ -145,7 +145,8 @@
     var then = Date.now();
     var interval = 1000 / fps;
     var delta;
-
+    var staPos = stationPoint;
+    var stationCount = Object.keys(staPos).length;
 
     var RENDERER = {
         init: function () {
@@ -168,30 +169,29 @@
             }
         },
         drawMap: function () {
-            for (var i = 0; i < staPos.length; i++) {
+            for (var i in staPos) {
+//            for (var i = 0; i < staPos.length; i++) {
                 //算当前点坐标
-                var centerX = parseInt((parseFloat(staPos[i].cx) - parseFloat(centerPoint.cx)  ) * rate) + position;
-                var centerY = parseInt((parseFloat(staPos[i].cy) - parseFloat(centerPoint.cy) ) * rate) + position;
+                var centerX = RENDERER.getPoint(staPos[i].cx, centerPoint.cx);
+                var centerY = RENDERER.getPoint(staPos[i].cy, centerPoint.cy);
                 //获取id
                 var id = parseInt(staPos[i].id);
                 //获取所在线路
                 var lineIndex = staPos[i].id.substr(0, 4);
                 //如果不是最后一个点  画线
-                if (i != staPos.length - 1) {
+                if (staPos[i].hasOwnProperty('nextId')) {
+                    var nextId = staPos[i].nextId;
                     //算先一个点的坐标
-                    var nextCenterX = parseInt((parseFloat(staPos[i + 1].cx) - parseFloat(centerPoint.cx)  ) * rate) + position;
-                    var nextCenterY = parseInt((parseFloat(staPos[i + 1].cy) - parseFloat(centerPoint.cy) ) * rate) + position;
-                    var nextId = parseInt(staPos[i + 1].id);
-                    //如果id相差1 说明是同线路相邻站点 画线
-                    if ((id + 1 == nextId) || (id - 1 == nextId)) {
-                        RENDERER.drawLine(RENDERER.cxt, centerX, centerY, nextCenterX, nextCenterY, 5, RENDERER.getLineColor(lineIndex), staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined)
-                    }
-                    // 是否存在下一站 只有在环形中有此判断 用于闭合环形
-                    if (staPos[i].hasOwnProperty('nextStation')) {
-                        nextCenterX = parseInt((parseFloat(staPos[i]['nextStation'].cx) - parseFloat(centerPoint.cx)  ) * rate) + position;
-                        nextCenterY = parseInt((parseFloat(staPos[i]['nextStation'].cy) - parseFloat(centerPoint.cy) ) * rate) + position;
-                        RENDERER.drawLine(RENDERER.cxt, centerX, centerY, nextCenterX, nextCenterY, 5, RENDERER.getLineColor(lineIndex), staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined);
-                        RENDERER.drawPoint(RENDERER.cxt, nextCenterX, nextCenterY, 3, 1, 'white', RENDERER.getLineColor(lineIndex))
+                    var nextCenterX = RENDERER.getPoint(staPos[nextId].cx, centerPoint.cx);
+                    var nextCenterY = RENDERER.getPoint(staPos[nextId].cy, centerPoint.cy);
+                    RENDERER.drawLine(RENDERER.cxt, centerX, centerY, nextCenterX, nextCenterY, 5, RENDERER.getLineColor(lineIndex), staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined)
+                    if (staPos[i].hasOwnProperty('isEnd') && staPos[i].isEnd == 'true') {
+                        // 画点 换乘站
+                        if (staPos[nextId].transfer == 'true') {
+                            RENDERER.drawPoint(RENDERER.cxt, nextCenterX, nextCenterY, 5, 2, 'white', 'rgba(255,0,0,' + colorList[lineIndex].a + ')')
+                        } else {//画点 非换乘站
+                            RENDERER.drawPoint(RENDERER.cxt, nextCenterX, nextCenterY, 3, 1, 'white', RENDERER.getLineColor(lineIndex))
+                        }
                     }
                 }
                 // 画点 换乘站
@@ -200,8 +200,10 @@
                 } else {//画点 非换乘站
                     RENDERER.drawPoint(RENDERER.cxt, centerX, centerY, 3, 1, 'white', RENDERER.getLineColor(lineIndex))
                 }
-                var nameX = parseInt((parseFloat(staPos[i].namePoint.x) - parseFloat(centerPoint.cx) - 10) * rate) + position;
-                var nameY = parseInt((parseFloat(staPos[i].namePoint.y) - parseFloat(centerPoint.cy)) * rate) + position;
+                var nameX = RENDERER.getPoint(staPos[i].namePoint.x, parseInt(centerPoint.cx) + 10);
+                var nameY = RENDERER.getPoint(staPos[i].namePoint.y, centerPoint.cy);
+//                var nameX = parseInt((parseFloat(staPos[i].namePoint.x) - parseFloat(centerPoint.cx) - 10) * rate) + position;
+//                var nameY = parseInt((parseFloat(staPos[i].namePoint.y) - parseFloat(centerPoint.cy)) * rate) + position;
                 RENDERER.drawText(RENDERER.cxt, nameX, nameY, staPos[i].name, 'rgba(0,0,0,' + colorList[lineIndex].a + ')');
             }
         },
@@ -252,15 +254,20 @@
         getLineColor: function (index) {
             return 'rgba(' + colorList[index].r + ',' + colorList[index].g + ',' + colorList[index].b + ',' + colorList[index].a + ')';
 
+        },
+        getPoint: function (point, centerPoint) {
+            return parseInt((parseFloat(point) - parseFloat(centerPoint)) * rate) + position;
         }
     };
     RENDERER.init();
-    setTimeout(function () {
-        for (var item in colorList) {
-            colorList[item].a = 0.1;
-        }
-        colorList[1001].a = 1;
-        colorList[1002].a = 1
-    }, 2000)
+    //    setTimeout(function () {
+    //        for (var item in colorList) {
+    //            colorList[item].a = 0.1;
+    //        }
+    //        colorList[1001].a = 1;
+    //        colorList[1002].a = 1
+    //    }, 2000);
+    
+
 
 </script>
