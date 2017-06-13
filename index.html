@@ -202,7 +202,7 @@
                 }
                 var nameX = parseInt((parseFloat(staPos[i].namePoint.x) - parseFloat(centerPoint.cx) - 10) * rate) + position;
                 var nameY = parseInt((parseFloat(staPos[i].namePoint.y) - parseFloat(centerPoint.cy)) * rate) + position;
-                RENDERER.drawText(RENDERER.cxt, nameX, nameY, staPos[i].name, 'black');
+                RENDERER.drawText(RENDERER.cxt, nameX, nameY, staPos[i].name, 'rgba(0,0,0,' + colorList[lineIndex].a + ')');
             }
         },
         drawPoint: function (context, x, y, r, lineWidth, fillColor, strokeColor) {
