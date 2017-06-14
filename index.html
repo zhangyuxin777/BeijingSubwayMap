@@ -27,6 +27,10 @@
     <button id="b_1055" rel="0">亦庄线</button>
     <button id="b_1054" rel="0">机场线</button>
 </div>
+<div class="scale-bar">
+    <button onclick="scaleMap(1)">+</button>
+    <button onclick="scaleMap(0)">-</button>
+</div>
 </body>
 </html>
 <script src="js/stationPoint.js"></script>
@@ -36,15 +40,14 @@
 
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
-    var choonseLineList = {};
+    var chooseLineList = {};
     var staPos = stationPoint;
     var param = function () {
         return {
             //刷新频率相关
-            fps: 30,
             now: 0,
             then: Date.now(),
-            interval: 1000 / 30,
+            interval: 1000 / 5,//刷新频率  分母即fps 越大会影响CPU占用率
             delta: 0,
             //颜色表
             colorList: {
@@ -274,6 +277,10 @@
             },
             getPoint: function (point, centerPoint) {
                 return parseInt((parseFloat(point) - parseFloat(centerPoint) + param.position) * param.rate);
+            },
+            setCanvasSize: function (rate) {
+                $('#myCanvas').attr('width', param.canvasWidth * param.rate);
+                $('#myCanvas').attr('height', param.canvasHeight * param.rate);
             }
         }
     }();
@@ -281,17 +288,17 @@
         var _this = event.target;
         var lineId = _this.id.split('_')[1];
         if ($(_this).attr('rel') == '0') {
-            choonseLineList[lineId] = '1';
+            chooseLineList[lineId] = '1';
             $(_this).attr('rel', '1');
             $(_this).addClass('choose');
         } else {
-            choonseLineList[lineId] = '0';
+            chooseLineList[lineId] = '0';
             $(_this).attr('rel', '0');
             $(_this).removeClass('choose');
         }
         var hasChoose = false;
         for (var i in param.colorList) {
-            if (choonseLineList.hasOwnProperty(i) && choonseLineList[i] == 1) {
+            if (chooseLineList.hasOwnProperty(i) && chooseLineList[i] == 1) {
                 param.colorList[i].a = '1';
                 hasChoose = true;
             } else {
@@ -301,6 +308,60 @@
         if (!hasChoose) {
             for (var j in param.colorList) {
                 param.colorList[j].a = '1';
+            }
+        }
+    }
+
+    function scaleMap(isAdd) {
+        if (isAdd) {
+            if (param.rate >= 2) {
+                return
+            }
+            var scale = $('#myCanvas').css('transform');
+            if (scale != 'none') {
+                scale = parseFloat($('#myCanvas').css('transform').split('(')[1].split(')')[0]);
+            } else {
+                scale = 1;
+            }
+            if (param.rate < 0.75) {
+                scale += 0.25;
+                $('#myCanvas').css('transform', 'scale(' + scale + ')');
+            } else if (param.rate > 0.75) {
+                param.rate = param.rate + 0.25;
+                RENDERER.setCanvasSize(param.rate);
+            } else {
+                if (scale < 1) {
+                    scale += 0.25;
+                    $('#myCanvas').css('transform', 'scale(' + scale + ')');
+                } else {
+                    param.rate = param.rate + 0.25;
+                    RENDERER.setCanvasSize(param.rate);
+                    $('#myCanvas').css('transform', 'scale(1)');
+                }
+            }
+        } else {
+            var scale = $('#myCanvas').css('transform');
+            if (scale != 'none') {
+                scale = parseFloat($('#myCanvas').css('transform').split('(')[1].split(')')[0]);
+            } else {
+                scale = 1;
+            }
+            if (scale <= 0.25) {
+                return;
+            }
+            if (param.rate > 0.75) {
+                param.rate = param.rate - 0.25;
+                RENDERER.setCanvasSize(param.rate);
+            } else if (param.rate < 0.75) {
+
+                console.log(scale);
+                scale -= 0.25;
+                $('#myCanvas').css('transform', 'scale(' + scale + ')');
+            } else {
+                param.rate = 0.75;
+                RENDERER.setCanvasSize(param.rate);
+                scale -= 0.25;
+                $('#myCanvas').css('transform', 'scale(' + scale + ')');
             }
         }
     }

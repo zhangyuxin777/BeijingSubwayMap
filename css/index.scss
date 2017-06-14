@@ -8,6 +8,7 @@ body {
   position: relative;
   border: 1px solid #d3d3d3;
   background: white;
+  //transform: scale(0.5);
 }
 
 .line-bar {
@@ -28,9 +29,24 @@ body {
   .choose {
     color: dodgerblue;
   }
-  span {
+}
+
+.scale-bar {
+  position: fixed;
+  top: 40px;
+  left: 20px;
+  text-align: center;
+  z-index: 999;
+  button {
+    background: #292728;
     display: inline-block;
-    padding: 5px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
     color: white;
+    border: none;
+    outline: none;
+    font-size: 30px;
+    margin-left: 10px;
   }
 }
