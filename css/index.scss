@@ -1,0 +1,36 @@
+body {
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.my-canvas {
+  position: relative;
+  border: 1px solid #d3d3d3;
+  background: white;
+}
+
+.line-bar {
+  position: fixed;
+  top: 0;
+  text-align: center;
+  z-index: 999;
+  width: 100%;
+  background: #292728;
+  button {
+    display: inline-block;
+    padding: 5px;
+    color: white;
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+  .choose {
+    color: dodgerblue;
+  }
+  span {
+    display: inline-block;
+    padding: 5px;
+    color: white;
+  }
+}

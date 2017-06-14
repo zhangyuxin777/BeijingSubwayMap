@@ -3,263 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <title>subway</title>
-    <style>
-        body {
-            margin: auto;
-        }
+    <link rel="stylesheet" href="css/index.css"/>
 
-        .my-canvas {
-            position: absolute;
-            border: 1px solid #d3d3d3;
-            left: 50%;
-            background: white;
-            margin-left: -750px;
-        }
-    </style>
 </head>
-<body>
-<canvas id="myCanvas" width="1600" height="1500" class="my-canvas"></canvas>
+<body style="-webkit-text-size-adjust: none;-moz-text-size-adjust: none">
+<div class="line-bar">
+    <button id="b_1001" rel="0">1号线</button>
+    <button id="b_1002" rel="0">2号线</button>
+    <button id="b_1004" rel="0">4号线</button>
+    <button id="b_1005" rel="0">5号线</button>
+    <button id="b_1006" rel="0">6号线</button>
+    <button id="b_1007" rel="0">7号线</button>
+    <button id="b_1008" rel="0">8号线</button>
+    <button id="b_1009" rel="0">9号线</button>
+    <button id="b_1010" rel="0">10号线</button>
+    <button id="b_1013" rel="0">13号线</button>
+    <button id="b_1014" rel="0">14号线</button>
+    <button id="b_1015" rel="0">15号线</button>
+    <button id="b_1016" rel="0">16号线</button>
+    <button id="b_1051" rel="0">八通线</button>
+    <button id="b_1052" rel="0">昌平线</button>
+    <button id="b_1053" rel="0">房山线</button>
+    <button id="b_1055" rel="0">亦庄线</button>
+    <button id="b_1054" rel="0">机场线</button>
+</div>
 </body>
 </html>
 <script src="js/stationPoint.js"></script>
 <script src="js/name.js"></script>
+<script src="js/jquery-1.9.1.min.js"></script>
 <script>
 
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
-    var colorList = {
-        1001: {
-            r: 228,
-            g: 120,
-            b: 120,
-            a: 1
-        },
-        1002: {
-            r: 85,
-            g: 145,
-            b: 206,
-            a: 1
-        },
-        1004: {
-            r: 23,
-            g: 190,
-            b: 176,
-            a: 1
-        },
-        1005: {
-            r: 207,
-            g: 112,
-            b: 179,
-            a: 1
-        },
-        1006: {
-            r: 226,
-            g: 161,
-            b: 22,
-            a: 1
-        },
-        1007: {
-            r: 179,
-            g: 143,
-            b: 101,
-            a: 1
-        },
-        1008: {
-            r: 71,
-            g: 184,
-            b: 82,
-            a: 1
-        },
-        1009: {
-            r: 136,
-            g: 173,
-            b: 46,
-            a: 1
-        },
-        1010: {
-            r: 59,
-            g: 174,
-            b: 202,
-            a: 1
-        },
-        1013: {
-            r: 191,
-            g: 126,
-            b: 22,
-            a: 1
-        },
-        1014: {
-            r: 185,
-            g: 128,
-            b: 128,
-            a: 1
-        },
-        1015: {
-            r: 138,
-            g: 112,
-            b: 185,
-            a: 1
-        },
-        1016: {
-            r: 90,
-            g: 142,
-            b: 119,
-            a: 1
-        },
-        1051: {
-            r: 228,
-            g: 120,
-            b: 120,
-            a: 1
-        },
-        1052: {
-            r: 177,
-            g: 134,
-            b: 164,
-            a: 1
-        },
-        1053: {
-            r: 219,
-            g: 130,
-            b: 64,
-            a: 1
-        },
-        1054: {
-            r: 177,
-            g: 153,
-            b: 187,
-            a: 1
-        },
-        1055: {
-            r: 222,
-            g: 89,
-            b: 130,
-            a: 1
-        }
-    };
-    var position = 720;
-    var rate = 0.75;
-
-    var fps = 30;
-    var now;
-    var then = Date.now();
-    var interval = 1000 / fps;
-    var delta;
+    var choonseLineList = {};
     var staPos = stationPoint;
-    var stationCount = Object.keys(staPos).length;
+    var param = function () {
+        return {
+            //刷新频率相关
+            fps: 30,
+            now: 0,
+            then: Date.now(),
+            interval: 1000 / 30,
+            delta: 0,
+            //颜色表
+            colorList: {
+                1001: {
+                    r: 228,
+                    g: 120,
+                    b: 120,
+                    a: 1
+                },
+                1002: {
+                    r: 85,
+                    g: 145,
+                    b: 206,
+                    a: 1
+                },
+                1004: {
+                    r: 23,
+                    g: 190,
+                    b: 176,
+                    a: 1
+                },
+                1005: {
+                    r: 207,
+                    g: 112,
+                    b: 179,
+                    a: 1
+                },
+                1006: {
+                    r: 226,
+                    g: 161,
+                    b: 22,
+                    a: 1
+                },
+                1007: {
+                    r: 179,
+                    g: 143,
+                    b: 101,
+                    a: 1
+                },
+                1008: {
+                    r: 71,
+                    g: 184,
+                    b: 82,
+                    a: 1
+                },
+                1009: {
+                    r: 136,
+                    g: 173,
+                    b: 46,
+                    a: 1
+                },
+                1010: {
+                    r: 59,
+                    g: 174,
+                    b: 202,
+                    a: 1
+                },
+                1013: {
+                    r: 191,
+                    g: 126,
+                    b: 22,
+                    a: 1
+                },
+                1014: {
+                    r: 185,
+                    g: 128,
+                    b: 128,
+                    a: 1
+                },
+                1015: {
+                    r: 138,
+                    g: 112,
+                    b: 185,
+                    a: 1
+                },
+                1016: {
+                    r: 90,
+                    g: 142,
+                    b: 119,
+                    a: 1
+                },
+                1051: {
+                    r: 228,
+                    g: 120,
+                    b: 120,
+                    a: 1
+                },
+                1052: {
+                    r: 177,
+                    g: 134,
+                    b: 164,
+                    a: 1
+                },
+                1053: {
+                    r: 219,
+                    g: 130,
+                    b: 64,
+                    a: 1
+                },
+                1054: {
+                    r: 177,
+                    g: 153,
+                    b: 187,
+                    a: 1
+                },
+                1055: {
+                    r: 222,
+                    g: 89,
+                    b: 130,
+                    a: 1
+                }
+            },
+            //初始配置 都是以0.75的
+            position: 933,
+            rate: 0.75,
+            baseFont: 20,
+            canvasWidth: 2133,
+            canvasHeight: 1733
+        }
+    }();
+    var RENDERER = function () {
+        return {
+            init: function () {
+                this.setParameters();
+                requestAnimationFrame(this.render);
+            },
+            setParameters: function () {
+                $('body').append('<canvas id="myCanvas" width="' + param.canvasWidth * param.rate + '" height="' + param.canvasHeight * param.rate + '" class="my-canvas"></canvas>');
+                this.canvas = document.getElementById("myCanvas");
+                this.cxt = this.canvas.getContext("2d");
+                this.cxt.imageSmoothingEnabled = true;
+            },
 
-    var RENDERER = {
-        init: function () {
-            this.setParameters();
-            requestAnimationFrame(this.render);
-        },
-        setParameters: function () {
-            this.cxt = document.getElementById("myCanvas").getContext("2d");
-            this.cxt.imageSmoothingEnabled = true;
-        },
-
-        render: function () {
-            requestAnimationFrame(RENDERER.render);
-            now = Date.now();
-            delta = now - then;
-            if (delta > interval) {
-                then = now - (delta % interval);
-                RENDERER.cxt.clearRect(0, 0, 1600, 1500);
-                RENDERER.drawMap();
-            }
-        },
-        drawMap: function () {
-            for (var i in staPos) {
-//            for (var i = 0; i < staPos.length; i++) {
-                //算当前点坐标
-                var centerX = RENDERER.getPoint(staPos[i].cx, centerPoint.cx);
-                var centerY = RENDERER.getPoint(staPos[i].cy, centerPoint.cy);
-                //获取id
-                var id = parseInt(staPos[i].id);
-                //获取所在线路
-                var lineIndex = staPos[i].id.substr(0, 4);
-                //如果不是最后一个点  画线
-                if (staPos[i].hasOwnProperty('nextId')) {
-                    var nextId = staPos[i].nextId;
-                    //算先一个点的坐标
-                    var nextCenterX = RENDERER.getPoint(staPos[nextId].cx, centerPoint.cx);
-                    var nextCenterY = RENDERER.getPoint(staPos[nextId].cy, centerPoint.cy);
-                    RENDERER.drawLine(RENDERER.cxt, centerX, centerY, nextCenterX, nextCenterY, 5, RENDERER.getLineColor(lineIndex), staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined)
-                    if (staPos[i].hasOwnProperty('isEnd') && staPos[i].isEnd == 'true') {
-                        // 画点 换乘站
-                        if (staPos[nextId].transfer == 'true') {
-                            RENDERER.drawPoint(RENDERER.cxt, nextCenterX, nextCenterY, 5, 2, 'white', 'rgba(255,0,0,' + colorList[lineIndex].a + ')')
-                        } else {//画点 非换乘站
-                            RENDERER.drawPoint(RENDERER.cxt, nextCenterX, nextCenterY, 3, 1, 'white', RENDERER.getLineColor(lineIndex))
+            render: function () {
+                requestAnimationFrame(RENDERER.render);
+                param.now = Date.now();
+                param.delta = param.now - param.then;
+                if (param.delta > param.interval) {
+                    param.then = param.now - (param.delta % param.interval);
+                    RENDERER.cxt.clearRect(0, 0, param.canvasWidth * param.rate, param.canvasHeight * param.rate);
+                    RENDERER.drawMap();
+                }
+            },
+            drawMap: function () {
+                for (var i in staPos) {
+                    var centerX = RENDERER.getPoint(staPos[i].cx, centerPoint.cx);
+                    var centerY = RENDERER.getPoint(staPos[i].cy, centerPoint.cy);
+                    //获取id
+                    var id = parseInt(staPos[i].id);
+                    //获取所在线路
+                    var lineIndex = staPos[i].id.substr(0, 4);
+                    //画线
+                    if (staPos[i].hasOwnProperty('nextId')) {
+                        var nextId = staPos[i].nextId;
+                        //算下一个点的坐标
+                        var nextCenterX = RENDERER.getPoint(staPos[nextId].cx, centerPoint.cx);
+                        var nextCenterY = RENDERER.getPoint(staPos[nextId].cy, centerPoint.cy);
+                        RENDERER.drawLine(RENDERER.cxt, centerX, centerY, nextCenterX, nextCenterY, 5, RENDERER.getLineColor(lineIndex), staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined)
+                        //终点 如果需要闭合
+                        if (staPos[i].hasOwnProperty('isEnd') && staPos[i].isEnd == 'true') {
+                            // 画点 换乘站
+                            if (staPos[nextId].transfer == 'true') {
+                                RENDERER.drawPoint(RENDERER.cxt, nextCenterX, nextCenterY, 5, 2, 'white', 'rgba(255,0,0,' + param.colorList[lineIndex].a + ')')
+                            } else {//画点 非换乘站
+                                RENDERER.drawPoint(RENDERER.cxt, nextCenterX, nextCenterY, 3, 1, 'white', RENDERER.getLineColor(lineIndex))
+                            }
                         }
                     }
+                    // 画点 换乘站
+                    if (staPos[i].transfer == 'true') {
+                        RENDERER.drawPoint(RENDERER.cxt, centerX, centerY, 5, 2, 'white', 'rgba(255,0,0,' + param.colorList[lineIndex].a + ')')
+                    } else {//画点 非换乘站
+                        RENDERER.drawPoint(RENDERER.cxt, centerX, centerY, 3, 1, 'white', RENDERER.getLineColor(lineIndex))
+                    }
+                    var nameX = RENDERER.getPoint(staPos[i].namePoint.x, parseInt(centerPoint.cx) + 10);
+                    var nameY = RENDERER.getPoint(staPos[i].namePoint.y, centerPoint.cy);
+                    RENDERER.drawText(RENDERER.cxt, nameX, nameY, staPos[i].name, 'rgba(0,0,0,' + param.colorList[lineIndex].a + ')', param.baseFont * param.rate * 0.8);
                 }
-                // 画点 换乘站
-                if (staPos[i].transfer == 'true') {
-                    RENDERER.drawPoint(RENDERER.cxt, centerX, centerY, 5, 2, 'white', 'rgba(255,0,0,' + colorList[lineIndex].a + ')')
-                } else {//画点 非换乘站
-                    RENDERER.drawPoint(RENDERER.cxt, centerX, centerY, 3, 1, 'white', RENDERER.getLineColor(lineIndex))
-                }
-                var nameX = RENDERER.getPoint(staPos[i].namePoint.x, parseInt(centerPoint.cx) + 10);
-                var nameY = RENDERER.getPoint(staPos[i].namePoint.y, centerPoint.cy);
-//                var nameX = parseInt((parseFloat(staPos[i].namePoint.x) - parseFloat(centerPoint.cx) - 10) * rate) + position;
-//                var nameY = parseInt((parseFloat(staPos[i].namePoint.y) - parseFloat(centerPoint.cy)) * rate) + position;
-                RENDERER.drawText(RENDERER.cxt, nameX, nameY, staPos[i].name, 'rgba(0,0,0,' + colorList[lineIndex].a + ')');
-            }
-        },
-        drawPoint: function (context, x, y, r, lineWidth, fillColor, strokeColor) {
-            context.beginPath();
-            context.lineWidth = lineWidth;//设置线宽
-            context.arc(x, y, r, 0, 360, false);
-            context.fillStyle = fillColor;//填充颜色
-            context.strokeStyle = strokeColor; //线颜色
-            context.fill(); //画实心圆
-            context.stroke();//画空心圆
-            context.closePath();
-        },
-        drawLine: function (context, x, y, nx, ny, lineWidth, color, bezier) {
-            if (bezier) {
-                context.strokeStyle = color;//线条颜色：绿色
-                context.lineWidth = lineWidth;//设置线宽
+            },
+            drawPoint: function (context, x, y, r, lineWidth, fillColor, strokeColor) {
                 context.beginPath();
-                context.moveTo(x, y);
-                var bx = parseInt((parseFloat(bezier.x) - parseFloat(centerPoint.cx)  ) * rate) + position;
-                var by = parseInt((parseFloat(bezier.y) - parseFloat(centerPoint.cy) ) * rate) + position;
-                if (bezier.hasOwnProperty('x2')) {
-                    var bx2 = parseInt((parseFloat(bezier.x2) - parseFloat(centerPoint.cx)  ) * rate) + position;
-                    var by2 = parseInt((parseFloat(bezier.y2) - parseFloat(centerPoint.cy) ) * rate) + position;
-                    context.bezierCurveTo(bx, by, bx2, by2, nx, ny);
+                context.lineWidth = lineWidth;//设置线宽
+                context.arc(x, y, r, 0, 360, false);
+                context.fillStyle = fillColor;//填充颜色
+                context.strokeStyle = strokeColor; //线颜色
+                context.fill(); //画实心圆
+                context.stroke();//画空心圆
+                context.closePath();
+            },
+            drawLine: function (context, x, y, nx, ny, lineWidth, color, bezier) {
+                if (bezier) {
+                    context.strokeStyle = color;//线条颜色：绿色
+                    context.lineWidth = lineWidth;//设置线宽
+                    context.beginPath();
+                    context.moveTo(x, y);
+                    var bx = RENDERER.getPoint(bezier.x, centerPoint.cx);
+                    var by = RENDERER.getPoint(bezier.y, centerPoint.cy);
+                    if (bezier.hasOwnProperty('x2')) {
+                        var bx2 = RENDERER.getPoint(bezier.x2, centerPoint.cx);
+                        var by2 = RENDERER.getPoint(bezier.y2, centerPoint.cy);
+                        context.bezierCurveTo(bx, by, bx2, by2, nx, ny);
+                    } else {
+                        context.quadraticCurveTo(bx, by, nx, ny);
+                    }
+                    context.stroke();//画线框
+                    context.closePath();
                 } else {
-                    context.quadraticCurveTo(bx, by, nx, ny);
+                    context.strokeStyle = color;//线条颜色：绿色
+                    context.lineWidth = lineWidth;//设置线宽
+                    context.beginPath();
+                    context.moveTo(x, y);
+                    context.lineTo(nx, ny);
+                    context.stroke();//画线框
+                    context.fill();//填充颜色
+                    context.closePath();
                 }
-                context.stroke();//画线框
-                context.closePath();//可以把这句注释掉再运行比较下不同
-            } else {
-                context.strokeStyle = color;//线条颜色：绿色
-                context.lineWidth = lineWidth;//设置线宽
-                context.beginPath();
-                context.moveTo(x, y);
-                context.lineTo(nx, ny);
-                context.stroke();//画线框
-                context.fill();//填充颜色
-                context.closePath();//可以把这句注释掉再运行比较下不同
+
+            },
+            drawText: function (context, x, y, text, color, size) {
+                context.fillStyle = color;
+                context.font = size + "px Microsoft YaHei";
+                context.fillText(text, x, y);
+            },
+            getLineColor: function (index) {
+                return 'rgba(' + param.colorList[index].r + ',' + param.colorList[index].g + ',' + param.colorList[index].b + ',' + param.colorList[index].a + ')';
+
+            },
+            getPoint: function (point, centerPoint) {
+                return parseInt((parseFloat(point) - parseFloat(centerPoint) + param.position) * param.rate);
             }
-
-        },
-        drawText: function (context, x, y, text, color) {
-            context.fillStyle = color;//线条颜色：绿色
-            context.font = "6px Microsoft YaHei";
-            context.fillText(text, x, y);
-        },
-        getLineColor: function (index) {
-            return 'rgba(' + colorList[index].r + ',' + colorList[index].g + ',' + colorList[index].b + ',' + colorList[index].a + ')';
-
-        },
-        getPoint: function (point, centerPoint) {
-            return parseInt((parseFloat(point) - parseFloat(centerPoint)) * rate) + position;
         }
-    };
+    }();
+    function chooseLine() {
+        var _this = event.target;
+        var lineId = _this.id.split('_')[1];
+        if ($(_this).attr('rel') == '0') {
+            choonseLineList[lineId] = '1';
+            $(_this).attr('rel', '1');
+            $(_this).addClass('choose');
+        } else {
+            choonseLineList[lineId] = '0';
+            $(_this).attr('rel', '0');
+            $(_this).removeClass('choose');
+        }
+        var hasChoose = false;
+        for (var i in param.colorList) {
+            if (choonseLineList.hasOwnProperty(i) && choonseLineList[i] == 1) {
+                param.colorList[i].a = '1';
+                hasChoose = true;
+            } else {
+                param.colorList[i].a = '0.1';
+            }
+        }
+        if (!hasChoose) {
+            for (var j in param.colorList) {
+                param.colorList[j].a = '1';
+            }
+        }
+    }
     RENDERER.init();
+    for (var i in param.colorList) {
+        $('#b_' + i).click(chooseLine);
+    }
+
     //    setTimeout(function () {
     //        for (var item in colorList) {
     //            colorList[item].a = 0.1;
@@ -267,7 +316,6 @@
     //        colorList[1001].a = 1;
     //        colorList[1002].a = 1
     //    }, 2000);
-    
 
 
 </script>
