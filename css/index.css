@@ -8,6 +8,10 @@ body {
   border: 1px solid #d3d3d3;
   background: white; }
 
+.content {
+  position: relative;
+  margin-top: 20px; }
+
 .line-bar {
   position: fixed;
   top: 0;
@@ -35,7 +39,6 @@ body {
     background: #292728;
     display: inline-block;
     width: 40px;
-    height: 40px;
     line-height: 40px;
     color: white;
     border: none;

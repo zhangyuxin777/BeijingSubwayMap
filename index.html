@@ -31,6 +31,9 @@
     <button onclick="scaleMap(1)">+</button>
     <button onclick="scaleMap(0)">-</button>
 </div>
+<div class="content" id="content">
+
+</div>
 </body>
 </html>
 <script src="js/stationPoint.js"></script>
@@ -160,11 +163,20 @@
                     a: 1
                 }
             },
-            //初始配置 都是以0.75的
-            position: 933,
-            rate: 0.75,
-            baseFont: 20,
-            canvasWidth: 2133,
+            rate: 1,            //初始比例
+            initRate: 1,        //默认比例
+            initZoom: 0.75,     //默认缩放
+            stepSize: 0.1,      //缩放步伐大小
+            position: 933,      //位置偏移量
+            baseFont: 16,       //默认字体大小
+            lineWidth: 6.7,      //线路宽度
+            pointR: 4,           //站点半径
+            pointLWidth: 1.34,   //站点圆圈宽度
+            pointColor: 'white', //站点填充色
+            tranPointR: 6.7,     //换乘点半径
+            tranPointLWidth: 2.7,//换乘点圆圈宽度
+            tranPColor: 'white', //换乘点填充色
+            canvasWidth: 2133,  //默认canvas宽度
             canvasHeight: 1733
         }
     }();
@@ -175,7 +187,8 @@
                 requestAnimationFrame(this.render);
             },
             setParameters: function () {
-                $('body').append('<canvas id="myCanvas" width="' + param.canvasWidth * param.rate + '" height="' + param.canvasHeight * param.rate + '" class="my-canvas"></canvas>');
+                $('#content').append('<canvas id="myCanvas" width="' + param.canvasWidth * param.rate + '" height="' + param.canvasHeight * param.rate + '" class="my-canvas"></canvas>');
+                $('#myCanvas').css('zoom', param.initZoom);
                 this.canvas = document.getElementById("myCanvas");
                 this.cxt = this.canvas.getContext("2d");
                 this.cxt.imageSmoothingEnabled = true;
@@ -205,26 +218,68 @@
                         //算下一个点的坐标
                         var nextCenterX = RENDERER.getPoint(staPos[nextId].cx, centerPoint.cx);
                         var nextCenterY = RENDERER.getPoint(staPos[nextId].cy, centerPoint.cy);
-                        RENDERER.drawLine(RENDERER.cxt, centerX, centerY, nextCenterX, nextCenterY, 5, RENDERER.getLineColor(lineIndex), staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined)
+                        RENDERER.drawLine(
+                            RENDERER.cxt,
+                            centerX,
+                            centerY,
+                            nextCenterX,
+                            nextCenterY,
+                            param.lineWidth * param.rate,
+                            RENDERER.getLineColor(lineIndex),
+                            staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined);
                         //终点 如果需要闭合
                         if (staPos[i].hasOwnProperty('isEnd') && staPos[i].isEnd == 'true') {
                             // 画点 换乘站
                             if (staPos[nextId].transfer == 'true') {
-                                RENDERER.drawPoint(RENDERER.cxt, nextCenterX, nextCenterY, 5, 2, 'white', 'rgba(255,0,0,' + param.colorList[lineIndex].a + ')')
+                                RENDERER.drawPoint(
+                                    RENDERER.cxt,
+                                    nextCenterX,
+                                    nextCenterY,
+                                    param.tranPointR * param.rate,
+                                    param.tranPointLWidth * param.rate,
+                                    param.tranPColor,
+                                    'rgba(255,0,0,' + param.colorList[lineIndex].a + ')')
                             } else {//画点 非换乘站
-                                RENDERER.drawPoint(RENDERER.cxt, nextCenterX, nextCenterY, 3, 1, 'white', RENDERER.getLineColor(lineIndex))
+                                RENDERER.drawPoint(
+                                    RENDERER.cxt,
+                                    nextCenterX,
+                                    nextCenterY,
+                                    param.pointR * param.rate,
+                                    param.pointLWidth * param.rate,
+                                    param.pointColor,
+                                    RENDERER.getLineColor(lineIndex))
                             }
                         }
                     }
                     // 画点 换乘站
                     if (staPos[i].transfer == 'true') {
-                        RENDERER.drawPoint(RENDERER.cxt, centerX, centerY, 5, 2, 'white', 'rgba(255,0,0,' + param.colorList[lineIndex].a + ')')
+                        RENDERER.drawPoint(
+                            RENDERER.cxt,
+                            centerX,
+                            centerY,
+                            param.tranPointR * param.rate,
+                            param.tranPointLWidth * param.rate,
+                            param.tranPColor,
+                            'rgba(255,0,0,' + param.colorList[lineIndex].a + ')')
                     } else {//画点 非换乘站
-                        RENDERER.drawPoint(RENDERER.cxt, centerX, centerY, 3, 1, 'white', RENDERER.getLineColor(lineIndex))
+                        RENDERER.drawPoint(
+                            RENDERER.cxt,
+                            centerX,
+                            centerY,
+                            param.pointR * param.rate,
+                            param.pointLWidth * param.rate,
+                            param.pointColor,
+                            RENDERER.getLineColor(lineIndex))
                     }
                     var nameX = RENDERER.getPoint(staPos[i].namePoint.x, parseInt(centerPoint.cx) + 10);
                     var nameY = RENDERER.getPoint(staPos[i].namePoint.y, centerPoint.cy);
-                    RENDERER.drawText(RENDERER.cxt, nameX, nameY, staPos[i].name, 'rgba(0,0,0,' + param.colorList[lineIndex].a + ')', param.baseFont * param.rate * 0.8);
+                    RENDERER.drawText(
+                        RENDERER.cxt,
+                        nameX,
+                        nameY,
+                        staPos[i].name,
+                        'rgba(0,0,0,' + param.colorList[lineIndex].a + ')',
+                        param.baseFont * param.rate);
                 }
             },
             drawPoint: function (context, x, y, r, lineWidth, fillColor, strokeColor) {
@@ -279,8 +334,8 @@
                 return parseInt((parseFloat(point) - parseFloat(centerPoint) + param.position) * param.rate);
             },
             setCanvasSize: function (rate) {
-                $('#myCanvas').attr('width', param.canvasWidth * param.rate);
-                $('#myCanvas').attr('height', param.canvasHeight * param.rate);
+                $('#myCanvas').attr('width', param.canvasWidth * rate);
+                $('#myCanvas').attr('height', param.canvasHeight * rate);
             }
         }
     }();
@@ -317,51 +372,50 @@
             if (param.rate >= 2) {
                 return
             }
-            var scale = $('#myCanvas').css('transform');
+            var scale = $('#myCanvas').css('zoom');
             if (scale != 'none') {
-                scale = parseFloat($('#myCanvas').css('transform').split('(')[1].split(')')[0]);
+                scale = parseFloat($('#myCanvas').css('zoom'));
             } else {
-                scale = 1;
+                scale = param.initZoom;
             }
-            if (param.rate < 0.75) {
-                scale += 0.25;
-                $('#myCanvas').css('transform', 'scale(' + scale + ')');
-            } else if (param.rate > 0.75) {
-                param.rate = param.rate + 0.25;
+            if (param.rate < param.initRate) {
+                scale += param.stepSize;
+                $('#myCanvas').css('zoom', scale);
+            } else if (param.rate > param.initRate) {
+                param.rate += param.stepSize;
                 RENDERER.setCanvasSize(param.rate);
             } else {
-                if (scale < 1) {
-                    scale += 0.25;
-                    $('#myCanvas').css('transform', 'scale(' + scale + ')');
+                if (scale < param.initZoom) {
+                    scale += param.stepSize;
+                    $('#myCanvas').css('zoom', scale);
                 } else {
-                    param.rate = param.rate + 0.25;
+                    param.rate += param.stepSize;
                     RENDERER.setCanvasSize(param.rate);
-                    $('#myCanvas').css('transform', 'scale(1)');
+                    $('#myCanvas').css('zoom', param.initZoom);
                 }
             }
         } else {
-            var scale = $('#myCanvas').css('transform');
+            var scale = $('#myCanvas').css('zoom');
             if (scale != 'none') {
-                scale = parseFloat($('#myCanvas').css('transform').split('(')[1].split(')')[0]);
+                scale = parseFloat($('#myCanvas').css('zoom'));
             } else {
-                scale = 1;
+                scale = param.initZoom;
             }
             if (scale <= 0.25) {
                 return;
             }
-            if (param.rate > 0.75) {
-                param.rate = param.rate - 0.25;
+            if (param.rate > param.initRate) {
+                param.rate -= param.stepSize;
                 RENDERER.setCanvasSize(param.rate);
-            } else if (param.rate < 0.75) {
-
+            } else if (param.rate < param.initRate) {
                 console.log(scale);
-                scale -= 0.25;
-                $('#myCanvas').css('transform', 'scale(' + scale + ')');
+                scale -= param.stepSize;
+                $('#myCanvas').css('zoom', scale);
             } else {
-                param.rate = 0.75;
+                param.rate = param.initRate;
                 RENDERER.setCanvasSize(param.rate);
-                scale -= 0.25;
-                $('#myCanvas').css('transform', 'scale(' + scale + ')');
+                scale -= param.stepSize;
+                $('#myCanvas').css('zoom', scale);
             }
         }
     }
