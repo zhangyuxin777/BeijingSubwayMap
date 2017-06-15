@@ -39,7 +39,7 @@ body {
 .scale-bar {
   position: fixed;
   top: 40px;
-  left: 20px;
+  right: 20px;
   text-align: center;
   z-index: 999;
   button {
@@ -52,6 +52,24 @@ body {
     border: none;
     outline: none;
     font-size: 30px;
+    margin-left: 10px;
+  }
+}
+.mode-bar {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  text-align: center;
+  z-index: 999;
+  button {
+    background: #292728;
+    display: inline-block;
+    //height: 40px;
+    line-height: 40px;
+    color: white;
+    border: none;
+    outline: none;
+    font-size: 20px;
     margin-left: 10px;
   }
 }

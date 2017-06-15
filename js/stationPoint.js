@@ -2997,7 +2997,7 @@ var stationPoint = {
     "name": "T2航站楼",
     "transfer": "false",
     "namePoint": {"x": "1482", "y": "346"},
-    "bezier": {"x": "1488", "y": "475"},
+    // "bezier": {"x": "1488", "y": "475"},
     "nextId": "s_1054004"
   },
   "s_1054004": {

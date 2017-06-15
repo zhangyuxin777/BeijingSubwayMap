@@ -31,13 +31,14 @@
     <button onclick="scaleMap(1)">+</button>
     <button onclick="scaleMap(0)">-</button>
 </div>
+<div class="mode-bar">
+    <button onclick="switchMode()">单线模式</button>
+</div>
 <div class="content" id="content">
-
 </div>
 </body>
 </html>
 <script src="js/stationPoint.js"></script>
-<script src="js/name.js"></script>
 <script src="js/jquery-1.9.1.min.js"></script>
 <script>
 
@@ -177,7 +178,9 @@
             tranPointLWidth: 2.7,//换乘点圆圈宽度
             tranPColor: 'white', //换乘点填充色
             canvasWidth: 2133,  //默认canvas宽度
-            canvasHeight: 1733
+            canvasHeight: 1733,
+            lineMode: 1         //模式
+
         }
     }();
     var RENDERER = function () {
@@ -208,8 +211,6 @@
                 for (var i in staPos) {
                     var centerX = RENDERER.getPoint(staPos[i].cx, centerPoint.cx);
                     var centerY = RENDERER.getPoint(staPos[i].cy, centerPoint.cy);
-                    //获取id
-                    var id = parseInt(staPos[i].id);
                     //获取所在线路
                     var lineIndex = staPos[i].id.substr(0, 4);
                     //画线
@@ -218,7 +219,8 @@
                         //算下一个点的坐标
                         var nextCenterX = RENDERER.getPoint(staPos[nextId].cx, centerPoint.cx);
                         var nextCenterY = RENDERER.getPoint(staPos[nextId].cy, centerPoint.cy);
-                        RENDERER.drawLine(
+                        var drawLine = param.lineMode ? RENDERER.drawDBLine : RENDERER.drawLine;
+                        drawLine(
                             RENDERER.cxt,
                             centerX,
                             centerY,
@@ -238,7 +240,7 @@
                                     param.tranPointR * param.rate,
                                     param.tranPointLWidth * param.rate,
                                     param.tranPColor,
-                                    'rgba(255,0,0,' + param.colorList[lineIndex].a + ')')
+                                    'rgba(0,0,0,' + param.colorList[lineIndex].a + ')')
                             } else {//画点 非换乘站
                                 RENDERER.drawPoint(
                                     RENDERER.cxt,
@@ -260,7 +262,7 @@
                             param.tranPointR * param.rate,
                             param.tranPointLWidth * param.rate,
                             param.tranPColor,
-                            'rgba(255,0,0,' + param.colorList[lineIndex].a + ')')
+                            'rgba(50,50,50,' + param.colorList[lineIndex].a + ')')
                     } else {//画点 非换乘站
                         RENDERER.drawPoint(
                             RENDERER.cxt,
@@ -278,7 +280,7 @@
                         nameX,
                         nameY,
                         staPos[i].name,
-                        'rgba(0,0,0,' + param.colorList[lineIndex].a + ')',
+                        'rgba(50,50,50,' + param.colorList[lineIndex].a + ')',
                         param.baseFont * param.rate);
                 }
             },
@@ -318,6 +320,144 @@
                     context.stroke();//画线框
                     context.fill();//填充颜色
                     context.closePath();
+                }
+
+            },
+            drawDBLine: function (context, x, y, nx, ny, lineWidth, color, bezier) {
+                var offset = lineWidth / 2.0 * 0.707;
+                var x1, y1, x2, y2, nx1, nx2, ny1, ny2;
+                var bx1, by1, bx2, by2, bxt1, bxt2, byt1, byt2;//两个过渡点  可能只有一个
+                if (bezier) {
+                    context.strokeStyle = color;//线条颜色：绿色
+                    context.lineWidth = 1;//设置线宽
+                    var bx = RENDERER.getPoint(bezier.x, centerPoint.cx);
+                    var by = RENDERER.getPoint(bezier.y, centerPoint.cy);
+                    if (bezier.hasOwnProperty('x2')) {
+                        var bxt = RENDERER.getPoint(bezier.x2, centerPoint.cx);
+                        var byt = RENDERER.getPoint(bezier.y2, centerPoint.cy);
+                    }
+
+                    if ((x - nx < 0 && y - ny < 0) || (x - nx > 0 && y - ny > 0)) {
+                        x1 = x + offset;
+                        nx1 = nx + offset;
+                        y1 = y - offset;
+                        ny1 = ny - offset;
+                        x2 = x - offset;
+                        nx2 = nx - offset;
+                        y2 = y + offset;
+                        ny2 = ny + offset;
+
+                        bx1 = bx + offset;
+                        by1 = by - offset;
+                        bx2 = bx - offset;
+                        by2 = by + offset;
+                        if (bezier.hasOwnProperty('x2')) {
+                            bxt1 = bxt + offset;
+                            byt1 = byt - offset;
+                            bxt2 = bxt - offset;
+                            byt2 = byt + offset;
+                        }
+
+                    } else {//右上 左下
+                        x1 = x - offset;
+                        nx1 = nx - offset;
+                        y1 = y - offset;
+                        ny1 = ny - offset;
+                        x2 = x + offset;
+                        nx2 = nx + offset;
+                        y2 = y + offset;
+                        ny2 = ny + offset;
+
+                        bx1 = bx - offset;
+                        by1 = by - offset;
+                        bx2 = bx + offset;
+                        by2 = by + offset;
+                        if (bezier.hasOwnProperty('x2')) {
+                            bxt1 = bxt - offset;
+                            byt1 = byt - offset;
+                            bxt2 = bxt + offset;
+                            byt2 = byt + offset;
+                        }
+                    }
+                    if (bezier.hasOwnProperty('x2')) {
+                        context.beginPath();
+                        context.moveTo(x1, y1);
+                        context.bezierCurveTo(bx1, by1, bxt1, byt1, nx1, ny1);
+                        context.stroke();//画线框
+                        context.closePath();
+
+                        context.beginPath();
+                        context.moveTo(x2, y2);
+                        context.bezierCurveTo(bx2, by2, bxt2, byt2, nx2, ny2);
+                        context.stroke();//画线框
+                        context.closePath();
+                    } else {
+                        context.beginPath();
+                        context.moveTo(x1, y1);
+                        context.quadraticCurveTo(bx1, by1, nx1, ny1);
+                        context.stroke();//画线框
+                        context.closePath();
+
+                        context.beginPath();
+                        context.moveTo(x2, y2);
+                        context.quadraticCurveTo(bx2, by2, nx2, ny2);
+                        context.stroke();//画线框
+                        context.closePath();
+                    }
+                } else {
+                    context.strokeStyle = color;//线条颜色：绿色
+                    context.lineWidth = 1;//设置线宽
+                    //水平或竖直的情况
+                    if (x == nx || y == ny) {
+                        offset = lineWidth / 2.0;
+                        context.beginPath();
+                        context.moveTo(x + offset, y + offset);
+                        context.lineTo(nx + offset, ny + offset);
+                        context.stroke();//画线框
+                        context.fill();//填充颜色
+                        context.closePath();
+
+                        context.beginPath();
+                        context.moveTo(x - offset, y - offset);
+                        context.lineTo(nx - offset, ny - offset);
+                        context.stroke();//画线框
+                        context.fill();//填充颜色
+                        context.closePath();
+                    } else {//斜线的情况
+                        // 两个点 左上或右下的关系
+                        if ((x - nx < 0 && y - ny < 0) || (x - nx > 0 && y - ny > 0)) {
+                            x1 = x + offset;
+                            nx1 = nx + offset;
+                            y1 = y - offset;
+                            ny1 = ny - offset;
+                            x2 = x - offset;
+                            nx2 = nx - offset;
+                            y2 = y + offset;
+                            ny2 = ny + offset;
+                        } else {//右上 左下
+                            x1 = x - offset;
+                            nx1 = nx - offset;
+                            y1 = y - offset;
+                            ny1 = ny - offset;
+                            x2 = x + offset;
+                            nx2 = nx + offset;
+                            y2 = y + offset;
+                            ny2 = ny + offset;
+                        }
+                        context.beginPath();
+                        context.moveTo(x1, y1);
+                        context.lineTo(nx1, ny1);
+                        context.stroke();//画线框
+                        context.fill();//填充颜色
+                        context.closePath();
+
+                        context.beginPath();
+                        context.moveTo(x2, y2);
+                        context.lineTo(nx2, ny2);
+                        context.stroke();//画线框
+                        context.fill();//填充颜色
+                        context.closePath();
+                    }
                 }
 
             },
@@ -419,6 +559,12 @@
             }
         }
     }
+
+    function switchMode() {
+        $(event.target).text(param.lineMode ? '双线模式' : '单线模式');
+        param.lineMode = !param.lineMode;
+    }
+
     RENDERER.init();
     for (var i in param.colorList) {
         $('#b_' + i).click(chooseLine);
