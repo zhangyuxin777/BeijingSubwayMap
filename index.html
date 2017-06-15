@@ -51,7 +51,7 @@
             //刷新频率相关
             now: 0,
             then: Date.now(),
-            interval: 1000 / 5,//刷新频率  分母即fps 越大会影响CPU占用率
+            interval: 1000 / 10,//刷新频率  分母即fps 越大会影响CPU占用率
             delta: 0,
             //颜色表
             colorList: {
@@ -179,7 +179,11 @@
             tranPColor: 'white', //换乘点填充色
             canvasWidth: 2133,  //默认canvas宽度
             canvasHeight: 1733,
-            lineMode: 1         //模式
+            lineMode: 1,         //模式
+            //闪烁参数
+            blinkRRate: 1.5,
+            blinkBlur: 10,
+            blinkColor: 'red'
 
         }
     }();
@@ -196,7 +200,6 @@
                 this.cxt = this.canvas.getContext("2d");
                 this.cxt.imageSmoothingEnabled = true;
             },
-
             render: function () {
                 requestAnimationFrame(RENDERER.render);
                 param.now = Date.now();
@@ -207,6 +210,9 @@
                     RENDERER.drawMap();
                 }
             },
+            /***
+             * 画地铁图
+             */
             drawMap: function () {
                 for (var i in staPos) {
                     var centerX = RENDERER.getPoint(staPos[i].cx, centerPoint.cx);
@@ -255,23 +261,51 @@
                     }
                     // 画点 换乘站
                     if (staPos[i].transfer == 'true') {
-                        RENDERER.drawPoint(
-                            RENDERER.cxt,
-                            centerX,
-                            centerY,
-                            param.tranPointR * param.rate,
-                            param.tranPointLWidth * param.rate,
-                            param.tranPColor,
-                            'rgba(50,50,50,' + param.colorList[lineIndex].a + ')')
-                    } else {//画点 非换乘站
-                        RENDERER.drawPoint(
-                            RENDERER.cxt,
-                            centerX,
-                            centerY,
-                            param.pointR * param.rate,
-                            param.pointLWidth * param.rate,
-                            param.pointColor,
-                            RENDERER.getLineColor(lineIndex))
+                        if (staPos[i].hasOwnProperty('isBusy') && staPos[i].isBusy == true) {
+                            //闪烁点
+                            RENDERER.drawBlinkPoint(
+                                RENDERER.cxt,
+                                centerX,
+                                centerY,
+                                param.tranPointR * param.rate ,
+                                param.tranPointLWidth * param.rate,
+                                param.blinkColor,
+                                param.blinkColor,
+                                staPos[i]);
+                        } else {
+                            RENDERER.drawPoint(
+                                RENDERER.cxt,
+                                centerX,
+                                centerY,
+                                param.tranPointR * param.rate,
+                                param.tranPointLWidth * param.rate,
+                                param.tranPColor,
+                                'rgba(50,50,50,' + param.colorList[lineIndex].a + ')')
+                        }
+                    } else {
+                        //画点 非换乘站
+                        if (staPos[i].hasOwnProperty('isBusy') && staPos[i].isBusy == true) {
+                            //闪烁点
+                            RENDERER.drawBlinkPoint(
+                                RENDERER.cxt,
+                                centerX,
+                                centerY,
+                                param.pointR * param.rate * param.blinkRRate,
+                                param.pointLWidth * param.rate,
+                                param.blinkColor,
+                                RENDERER.getLineColor(lineIndex),
+                                staPos[i]);
+                        } else {
+                            //正常点
+                            RENDERER.drawPoint(
+                                RENDERER.cxt,
+                                centerX,
+                                centerY,
+                                param.pointR * param.rate,
+                                param.pointLWidth * param.rate,
+                                param.pointColor,
+                                RENDERER.getLineColor(lineIndex));
+                        }
                     }
                     var nameX = RENDERER.getPoint(staPos[i].namePoint.x, parseInt(centerPoint.cx) + 10);
                     var nameY = RENDERER.getPoint(staPos[i].namePoint.y, centerPoint.cy);
@@ -284,20 +318,80 @@
                         param.baseFont * param.rate);
                 }
             },
+            /***
+             * 画点
+             * @param context
+             * @param x 坐标x
+             * @param y 坐标y
+             * @param r 点半径
+             * @param lineWidth 边线宽度
+             * @param fillColor 填充颜色
+             * @param strokeColor 边线颜色
+             */
             drawPoint: function (context, x, y, r, lineWidth, fillColor, strokeColor) {
                 context.beginPath();
                 context.lineWidth = lineWidth;//设置线宽
                 context.arc(x, y, r, 0, 360, false);
+                context.shadowBlur = 0;
+                context.shadowColor = "transparent";
                 context.fillStyle = fillColor;//填充颜色
                 context.strokeStyle = strokeColor; //线颜色
                 context.fill(); //画实心圆
                 context.stroke();//画空心圆
                 context.closePath();
             },
+
+            /***
+             * 画闪烁点
+             * @param context
+             * @param x 坐标x
+             * @param y 坐标y
+             * @param r 点半径
+             * @param lineWidth 边线宽度
+             * @param fillColor 填充颜色
+             * @param strokeColor 边线颜色
+             */
+            drawBlinkPoint: function (context, x, y, r, lineWidth, fillColor, strokeColor, station) {
+                if (station.hasOwnProperty('date')) {
+                    if (!station.hasOwnProperty('blur')) {
+                        station.blur = false;
+                    }
+                    if (parseInt(Date.now()) - station.date > 200) {
+                        station.blur = !station.blur;
+                        station.date = Date.now();
+                    }
+                } else {
+                    station.date = Date.now();
+                }
+                context.beginPath();
+                context.lineWidth = lineWidth;//设置线宽
+                context.arc(x, y, r, 0, 360, false);
+                context.shadowBlur = station.blur ? 10 : 0;
+                context.shadowColor = "red";
+                context.fillStyle = fillColor;//填充颜色
+                context.strokeStyle = strokeColor; //线颜色
+                context.fill(); //画实心圆
+                context.stroke();//画空心圆
+                context.closePath();
+            },
+
+            /***
+             * 画线
+             * @param context
+             * @param x 起点坐标x
+             * @param y 起点坐标y
+             * @param nx 终点坐标x
+             * @param ny 终点坐标y
+             * @param lineWidth 边线宽度
+             * @param color 线的颜色
+             * @param bezier 贝塞尔曲线参数
+             */
             drawLine: function (context, x, y, nx, ny, lineWidth, color, bezier) {
+                context.strokeStyle = color;//线条颜色：绿色
+                context.lineWidth = lineWidth;//设置线宽
+                context.shadowBlur = 0;
+                context.shadowColor = "transparent";
                 if (bezier) {
-                    context.strokeStyle = color;//线条颜色：绿色
-                    context.lineWidth = lineWidth;//设置线宽
                     context.beginPath();
                     context.moveTo(x, y);
                     var bx = RENDERER.getPoint(bezier.x, centerPoint.cx);
@@ -312,8 +406,6 @@
                     context.stroke();//画线框
                     context.closePath();
                 } else {
-                    context.strokeStyle = color;//线条颜色：绿色
-                    context.lineWidth = lineWidth;//设置线宽
                     context.beginPath();
                     context.moveTo(x, y);
                     context.lineTo(nx, ny);
@@ -323,13 +415,26 @@
                 }
 
             },
+            /***
+             * 画双线
+             * @param context
+             * @param x 起点坐标x
+             * @param y 起点坐标y
+             * @param nx 终点坐标x
+             * @param ny 终点坐标y
+             * @param lineWidth 两线间距 包括线本身
+             * @param color 线的颜色
+             * @param bezier 贝塞尔曲线参数
+             */
             drawDBLine: function (context, x, y, nx, ny, lineWidth, color, bezier) {
                 var offset = lineWidth / 2.0 * 0.707;
                 var x1, y1, x2, y2, nx1, nx2, ny1, ny2;
                 var bx1, by1, bx2, by2, bxt1, bxt2, byt1, byt2;//两个过渡点  可能只有一个
+                context.strokeStyle = color;//线条颜色：绿色
+                context.lineWidth = 1;//设置线宽
+                context.shadowBlur = 0;
+                context.shadowColor = "transparent";
                 if (bezier) {
-                    context.strokeStyle = color;//线条颜色：绿色
-                    context.lineWidth = 1;//设置线宽
                     var bx = RENDERER.getPoint(bezier.x, centerPoint.cx);
                     var by = RENDERER.getPoint(bezier.y, centerPoint.cy);
                     if (bezier.hasOwnProperty('x2')) {
@@ -405,8 +510,6 @@
                         context.closePath();
                     }
                 } else {
-                    context.strokeStyle = color;//线条颜色：绿色
-                    context.lineWidth = 1;//设置线宽
                     //水平或竖直的情况
                     if (x == nx || y == ny) {
                         offset = lineWidth / 2.0;
@@ -461,24 +564,54 @@
                 }
 
             },
+            /***
+             * 画文字
+             * @param context
+             * @param x 坐标x
+             * @param y 坐标y
+             * @param text 文本
+             * @param color 文本颜色
+             * @param size 字号
+             */
             drawText: function (context, x, y, text, color, size) {
                 context.fillStyle = color;
+                context.shadowBlur = 0;
+                context.shadowColor = "transparent";
                 context.font = size + "px Microsoft YaHei";
                 context.fillText(text, x, y);
             },
+            /***
+             * 根据颜色表获取对应地铁线路颜色
+             * @param index 线路id
+             * @returns {string}
+             */
             getLineColor: function (index) {
                 return 'rgba(' + param.colorList[index].r + ',' + param.colorList[index].g + ',' + param.colorList[index].b + ',' + param.colorList[index].a + ')';
 
             },
+            /***
+             * 获取在canvas上的点坐标
+             * 其实就是和中心点做运算
+             * @param point 坐标x 或 坐标y
+             * @param centerPoint 中心点 坐标x 或 坐标y
+             * @returns {Number} 坐标x 或 坐标y
+             */
             getPoint: function (point, centerPoint) {
                 return parseInt((parseFloat(point) - parseFloat(centerPoint) + param.position) * param.rate);
             },
+            /***
+             * 设置canvas尺寸
+             * @param rate 缩放倍率
+             */
             setCanvasSize: function (rate) {
                 $('#myCanvas').attr('width', param.canvasWidth * rate);
                 $('#myCanvas').attr('height', param.canvasHeight * rate);
             }
         }
     }();
+    /**
+     * 切换线路
+     */
     function chooseLine() {
         var _this = event.target;
         var lineId = _this.id.split('_')[1];
@@ -507,6 +640,10 @@
         }
     }
 
+    /***
+     * 放大缩小
+     * @param isAdd 是否放大
+     */
     function scaleMap(isAdd) {
         if (isAdd) {
             if (param.rate >= 2) {
@@ -560,12 +697,16 @@
         }
     }
 
+    /***
+     * 切换单线双线模式
+     */
     function switchMode() {
         $(event.target).text(param.lineMode ? '双线模式' : '单线模式');
         param.lineMode = !param.lineMode;
     }
 
     RENDERER.init();
+    //给线路标识添加点击事件
     for (var i in param.colorList) {
         $('#b_' + i).click(chooseLine);
     }
@@ -577,6 +718,8 @@
     //        colorList[1001].a = 1;
     //        colorList[1002].a = 1
     //    }, 2000);
-
+    stationPoint['s_1001002'].isBusy = true;
+    stationPoint['s_1001014'].isBusy = true;
+    stationPoint['s_1004018'].isBusy = true;
 
 </script>
