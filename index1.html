@@ -106,7 +106,7 @@
                 1010: {
                     r: 59,
                     g: 174,
-                    b: 202,
+                    b: 232,
                     a: 1
                 },
                 1013: {
@@ -116,9 +116,9 @@
                     a: 1
                 },
                 1014: {
-                    r: 185,
+                    r: 205,
                     g: 128,
-                    b: 128,
+                    b: 228,
                     a: 1
                 },
                 1015: {
@@ -179,7 +179,7 @@
             tranPColor: 'white', //换乘点填充色
             canvasWidth: 2133,  //默认canvas宽度
             canvasHeight: 1733,
-            lineMode: 1,         //模式
+            lineMode: 0,         //模式
             //闪烁参数
             blinkRRate: 1.5,
             blinkBlur: 10,
@@ -241,55 +241,6 @@
                                 staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier[nextIndex] : undefined);
                         }
                     }
-                    // 画点 换乘站
-                    if (staPos[i].transfer) {
-                        if (staPos[i].hasOwnProperty('isBusy') && staPos[i].isBusy == true) {
-                            //闪烁点
-                            RENDERER.drawBlinkPoint(
-                                RENDERER.cxt,
-                                centerX,
-                                centerY,
-                                param.tranPointR * param.rate,
-                                param.tranPointLWidth * param.rate,
-                                param.blinkColor,
-                                param.blinkColor,
-                                staPos[i]);
-                        } else {
-                            RENDERER.drawPoint(
-                                RENDERER.cxt,
-                                centerX,
-                                centerY,
-                                param.tranPointR * param.rate,
-                                param.tranPointLWidth * param.rate,
-                                param.tranPColor,
-                                'rgba(50,50,50,' + param.colorList[lineIndex].a + ')')
-                        }
-
-                    } else {
-                        //画点 非换乘站
-                        if (staPos[i].hasOwnProperty('isBusy') && staPos[i].isBusy == true) {
-                            //闪烁点
-                            RENDERER.drawBlinkPoint(
-                                RENDERER.cxt,
-                                centerX,
-                                centerY,
-                                param.pointR * param.rate * param.blinkRRate,
-                                param.pointLWidth * param.rate,
-                                param.blinkColor,
-                                RENDERER.getLineColor(lineIndex),
-                                staPos[i]);
-                        } else {
-                            //正常点
-                            RENDERER.drawPoint(
-                                RENDERER.cxt,
-                                centerX,
-                                centerY,
-                                param.pointR * param.rate,
-                                param.pointLWidth * param.rate,
-                                param.pointColor,
-                                RENDERER.getLineColor(lineIndex));
-                        }
-                    }
                     var nameX = RENDERER.getPoint(staPos[i].namePoint.x, parseInt(centerPoint.cx) + 10);
                     var nameY = RENDERER.getPoint(staPos[i].namePoint.y, centerPoint.cy);
                     RENDERER.drawText(
@@ -325,7 +276,7 @@
                                 param.tranPointR * param.rate,
                                 param.tranPointLWidth * param.rate,
                                 param.tranPColor,
-                                'rgba(50,50,50,' + param.colorList[lineIndex].a + ')')
+                                'rgba(0,0,0,' + param.colorList[lineIndex].a + ')')
                         }
 
                     } else {

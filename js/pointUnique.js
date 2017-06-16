@@ -211,7 +211,7 @@ var pointUnique = {
     "transfer": true,
     "namePoint": {"x": "1244", "y": "826"},
     "nextId": ["s_1001023", "s_1007014"],
-    "lineId": ["1001", "1007"]
+    "lineId": ["1001", "1014"]
   },
   "s_1001023": {
     "cx": "1273",
@@ -283,7 +283,7 @@ var pointUnique = {
     "bezier": [null, {"x": "1113", "y": "680", "x2": "1113", "y2": "680"}],
     "namePoint": {"x": "1062", "y": "700"},
     "nextId": ["s_1002007", "s_1010015"],
-    "lineId": ["1002", "1010"]
+    "lineId": ["1002", "1054"]
   },
   "s_1002007": {
     "cx": "1046",
@@ -303,7 +303,7 @@ var pointUnique = {
     "transfer": true,
     "namePoint": {"x": "1065", "y": "786"},
     "nextId": ["s_1001019", "s_1005009"],
-    "lineId": ["1001", "1005"]
+    "lineId": ["1002", "1006"]
   },
   "s_1002010": {
     "cx": "1035",
@@ -324,7 +324,7 @@ var pointUnique = {
     "transfer": true,
     "namePoint": {"x": "993", "y": "907"},
     "nextId": ["s_1002012", "s_1001018"],
-    "lineId": ["1002", "1001"]
+    "lineId": ["1002", "1005"]
   },
   "s_1002012": {
     "cx": "891",
@@ -355,7 +355,7 @@ var pointUnique = {
     "bezier": [{"x": "682", "y": "887"}, null],
     "namePoint": {"x": "708", "y": "907"},
     "nextId": ["s_1002015", "s_1001014"],
-    "lineId": ["1002", "1001"]
+    "lineId": ["1002", "1004"]
   },
   "s_1002015": {
     "cx": "682",
@@ -568,7 +568,7 @@ var pointUnique = {
     "transfer": true,
     "namePoint": {"x": "772", "y": "919"},
     "nextId": ["s_1002014", "s_1007006"],
-    "lineId": ["1002", "1007"]
+    "lineId": ["1004", "1007"]
   },
   "s_1004017": {
     "cx": "754",
@@ -598,7 +598,7 @@ var pointUnique = {
     "transfer": true,
     "namePoint": {"x": "772", "y": "746"},
     "nextId": ["s_1004014", "s_1002018"],
-    "lineId": ["1004", "1002"]
+    "lineId": ["1004", "1006"]
   },
   "s_1004014": {
     "cx": "752",
@@ -769,7 +769,7 @@ var pointUnique = {
     "name": "磁器口",
     "transfer": true,
     "namePoint": {"x": "927", "y": "919"},
-    "nextId": ["s_1005005", "s_1007010"],
+    "nextId": ["s_1002011", "s_1007010"],
     "lineId": ["1005", "1007"]
   },
   "s_1005008": {
@@ -1050,7 +1050,7 @@ var pointUnique = {
     "transfer": true,
     "namePoint": {"x": "1245", "y": "756"},
     "nextId": ["s_1006014", "s_1001022"],
-    "lineId": ["1006", "1001"]
+    "lineId": ["1006", "1014"]
   },
   "s_1006014": {
     "cx": "1163",
@@ -1110,7 +1110,7 @@ var pointUnique = {
     "transfer": true,
     "namePoint": {"x": "519", "y": "716"},
     "nextId": ["s_1006004", "s_1004011"],
-    "lineId": ["1006", "1004"]
+    "lineId": ["1006", "1009"]
   },
   "s_1006004": {
     "cx": "414",
@@ -1311,7 +1311,7 @@ var pointUnique = {
     "transfer": true,
     "namePoint": {"x": "527", "y": "883"},
     "nextId": ["s_1001010"],
-    "lineId": ["1001"]
+    "lineId": ["1009"]
   },
   "s_1008003": {
     "cx": "856",
@@ -1431,7 +1431,7 @@ var pointUnique = {
     "transfer": true,
     "namePoint": {"x": "876", "y": "300"},
     "nextId": ["s_1008016", "s_1005020"],
-    "lineId": ["1008", "1005"]
+    "lineId": ["1008", "1013"]
   },
   "s_1008016": {
     "cx": "856",
@@ -1866,7 +1866,7 @@ var pointUnique = {
     "transfer": true,
     "namePoint": {"x": "452", "y": "994"},
     "nextId": ["s_1009008", "s_1009007"],
-    "lineId": ["1009", "1009"]
+    "lineId": ["1010", "1014"]
   },
   "s_1010040": {
     "cx": "432",
@@ -1999,7 +1999,7 @@ var pointUnique = {
     "transfer": true,
     "namePoint": {"x": "1090", "y": "438"},
     "nextId": ["s_1010013", "s_1015014"],
-    "lineId": ["1010", "1015"]
+    "lineId": ["1013", "1015"]
   },
   "s_1013004": {
     "cx": "1072",
@@ -2061,7 +2061,7 @@ var pointUnique = {
     "bezier": [{"x": "1139", "y": "493"}, null],
     "namePoint": {"x": "1159", "y": "439"},
     "nextId": ["s_1014005", "s_1013006"],
-    "lineId": ["1014", "1013"]
+    "lineId": ["1014", "1015"]
   },
   "s_1014005": {
     "cx": "1148",
