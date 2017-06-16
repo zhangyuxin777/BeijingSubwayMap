@@ -183,7 +183,15 @@
             //闪烁参数
             blinkRRate: 1.5,
             blinkBlur: 10,
-            blinkColor: 'red'
+            blinkColor: {
+                r: 255, g: 0, b: 0
+            },
+            textColor: {
+                r: 50, g: 50, b: 50
+            },
+
+            showAlpha: 1,
+            hideAlpha: 0.1
 
         }
     }();
@@ -215,10 +223,10 @@
              */
             drawMap: function () {
 
+                //画线
                 for (var i in staPos) {
                     var centerX = RENDERER.getPoint(staPos[i].cx, centerPoint.cx);
                     var centerY = RENDERER.getPoint(staPos[i].cy, centerPoint.cy);
-                    //画线
                     if (staPos[i].hasOwnProperty('nextId') && staPos[i].nextId.length != 0) {
                         for (var nextIndex = 0; nextIndex < staPos[i].nextId.length; nextIndex++) {
 
@@ -241,20 +249,25 @@
                                 staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier[nextIndex] : undefined);
                         }
                     }
-                    var nameX = RENDERER.getPoint(staPos[i].namePoint.x, parseInt(centerPoint.cx) + 10);
-                    var nameY = RENDERER.getPoint(staPos[i].namePoint.y, centerPoint.cy);
-                    RENDERER.drawText(
-                        RENDERER.cxt,
-                        nameX,
-                        nameY,
-                        staPos[i].name,
-                        'rgba(50,50,50,' + param.colorList[lineIndex].a + ')',
-                        param.baseFont * param.rate);
                 }
-
+                // 画点
                 for (i in staPos) {
+                    //获取所在线路
+                    lineIndex = staPos[i].lineId[0];
                     centerX = RENDERER.getPoint(staPos[i].cx, centerPoint.cx);
                     centerY = RENDERER.getPoint(staPos[i].cy, centerPoint.cy);
+
+                    var nameX = RENDERER.getPoint(staPos[i].namePoint.x, parseInt(centerPoint.cx) + 10);
+                    var nameY = RENDERER.getPoint(staPos[i].namePoint.y, centerPoint.cy);
+
+                    var alpha = param.hideAlpha;
+                    for (var li = 0; li < staPos[i].lineId.length; li++) {
+                        if (param.colorList[staPos[i].lineId[li]].a == param.showAlpha) {
+                            alpha = param.showAlpha;
+                            break;
+                        }
+
+                    }
                     // 画点 换乘站
                     if (staPos[i].transfer) {
                         if (staPos[i].hasOwnProperty('isBusy') && staPos[i].isBusy == true) {
@@ -265,8 +278,8 @@
                                 centerY,
                                 param.tranPointR * param.rate,
                                 param.tranPointLWidth * param.rate,
-                                param.blinkColor,
-                                param.blinkColor,
+                                RENDERER.getColor(param.blinkColor, alpha),
+                                RENDERER.getColor(param.blinkColor, alpha),
                                 staPos[i]);
                         } else {
                             RENDERER.drawPoint(
@@ -276,8 +289,15 @@
                                 param.tranPointR * param.rate,
                                 param.tranPointLWidth * param.rate,
                                 param.tranPColor,
-                                'rgba(0,0,0,' + param.colorList[lineIndex].a + ')')
+                                'rgba(0,0,0,' + alpha + ')')
                         }
+                        RENDERER.drawText(
+                            RENDERER.cxt,
+                            nameX,
+                            nameY,
+                            staPos[i].name,
+                            RENDERER.getColor(param.textColor,alpha),
+                            param.baseFont * param.rate);
 
                     } else {
                         //画点 非换乘站
@@ -289,7 +309,7 @@
                                 centerY,
                                 param.pointR * param.rate * param.blinkRRate,
                                 param.pointLWidth * param.rate,
-                                param.blinkColor,
+                                RENDERER.getColor(param.blinkColor, param.colorList[lineIndex].a),
                                 RENDERER.getLineColor(lineIndex),
                                 staPos[i]);
                         } else {
@@ -303,6 +323,13 @@
                                 param.pointColor,
                                 RENDERER.getLineColor(lineIndex));
                         }
+                        RENDERER.drawText(
+                            RENDERER.cxt,
+                            nameX,
+                            nameY,
+                            staPos[i].name,
+                            RENDERER.getColor(param.textColor,param.colorList[lineIndex].a),
+                            param.baseFont * param.rate);
                     }
                 }
             },
@@ -594,6 +621,10 @@
             setCanvasSize: function (rate) {
                 $('#myCanvas').attr('width', param.canvasWidth * rate);
                 $('#myCanvas').attr('height', param.canvasHeight * rate);
+            },
+            getColor: function (color, a) {
+                return 'rgba(' + color.r + ',' + color.g + ',' + color.b + ',' + a + ')';
+
             }
         }
     }();
@@ -615,10 +646,10 @@
         var hasChoose = false;
         for (var i in param.colorList) {
             if (chooseLineList.hasOwnProperty(i) && chooseLineList[i] == 1) {
-                param.colorList[i].a = '1';
+                param.colorList[i].a = param.showAlpha;
                 hasChoose = true;
             } else {
-                param.colorList[i].a = '0.1';
+                param.colorList[i].a = param.hideAlpha;
             }
         }
         if (!hasChoose) {
@@ -706,9 +737,19 @@
     //        colorList[1001].a = 1;
     //        colorList[1002].a = 1
     //    }, 2000);
-    //    stationPoint['s_1001002'].isBusy = true;
-    //    stationPoint['s_1001014'].isBusy = true;
-    //    stationPoint['s_1004018'].isBusy = true;
+    pointUnique['s_1001002'].isBusy = true;
+    pointUnique['s_1001014'].isBusy = true;
+    pointUnique['s_1001013'].isBusy = true;
+    pointUnique['s_1005009'].isBusy = true;
+    pointUnique['s_1001018'].isBusy = true;
+    pointUnique['s_1004015'].isBusy = true;
+    pointUnique['s_1002019'].isBusy = true;
+    pointUnique['s_1002006'].isBusy = true;
+
+    pointUnique['s_1001021'].isBusy = true;
+    pointUnique['s_1006014'].isBusy = true;
+    pointUnique['s_1002014'].isBusy = true;
+    pointUnique['s_1002010'].isBusy = true;
 
     //    console.log('dsdsdsdd')
     //        for (var i in stationPoint) {
