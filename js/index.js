@@ -174,6 +174,7 @@ import '../css/index.css';
         $('body').append('<div class="content" id="content" style="width: ' + param.canvasWidth * param.rate + 'px;height: ' + param.canvasHeight * param.rate + 'px"></div>');
         $('#content').append('<canvas id="myCanvas" width="' + param.canvasWidth * param.rate + '" height="' + param.canvasHeight * param.rate + '" class="my-canvas"></canvas>');
         $('#content').css('zoom', param.initZoom);
+        $('#content').append('<div class="mask"></div>');
         this.canvas = document.getElementById("myCanvas");
         this.cxt = this.canvas.getContext("2d");
         this.cxt.imageSmoothingEnabled = true;
@@ -689,6 +690,14 @@ import '../css/index.css';
         $('#content').css('zoom', scale);
       }
     }
+    $('.mask').html('');
+    for (i in staPos) {
+      //获取所在线路
+      var centerX = RENDERER.getPoint(staPos[i].cx, centerPoint.cx);
+      var centerY = RENDERER.getPoint(staPos[i].cy, centerPoint.cy);
+      $('.mask').append('<div class="point" style="left: ' + centerX + 'px;top: ' + centerY + 'px;" ></div>');
+
+    }
   }
 
   /***
@@ -722,4 +731,6 @@ import '../css/index.css';
   staPos['s_1006014'].isBusy = true;
   staPos['s_1002014'].isBusy = true;
   staPos['s_1002010'].isBusy = true;
+
+
 })($, point.pointUnique, point.centerPoint);

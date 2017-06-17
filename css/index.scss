@@ -6,18 +6,32 @@ body {
   -moz-text-size-adjust: none
 }
 
-.my-canvas {
-  position: relative;
-  border: 1px solid #d3d3d3;
-  background: white;
-  //transform: scale(0.75);
-}
-
 .content {
   position: relative;
-  margin-top: 20px;
+  margin-top: 40px;
   margin-left: auto;
   margin-right: auto;
+
+  .my-canvas {
+    position: absolute;
+    border: 1px solid #d3d3d3;
+    background: white;
+  }
+  .mask {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    .point {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      margin-left: -6px;
+      margin-top: -6px;
+      border-radius: 50%;
+      color: transparent;
+      background-color: transparent;
+    }
+  }
 }
 
 .line-bar {
