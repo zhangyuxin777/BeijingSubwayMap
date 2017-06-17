@@ -2,6 +2,8 @@ body {
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none
 }
 
 .my-canvas {
@@ -14,6 +16,8 @@ body {
 .content {
   position: relative;
   margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .line-bar {
@@ -55,6 +59,7 @@ body {
     margin-left: 10px;
   }
 }
+
 .mode-bar {
   position: fixed;
   top: 100px;
