@@ -38,14 +38,14 @@
 </div>
 </body>
 </html>
-<script src="js/stationPoint.js"></script>
+<script src="js/pointUnique.js"></script>
 <script src="js/jquery-1.9.1.min.js"></script>
 <script>
 
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
     var chooseLineList = {};
-    var staPos = stationPoint;
+    var staPos = pointUnique;
     var param = function () {
         return {
             //刷新频率相关
@@ -106,7 +106,7 @@
                 1010: {
                     r: 59,
                     g: 174,
-                    b: 202,
+                    b: 232,
                     a: 1
                 },
                 1013: {
@@ -116,9 +116,9 @@
                     a: 1
                 },
                 1014: {
-                    r: 185,
+                    r: 205,
                     g: 128,
-                    b: 128,
+                    b: 228,
                     a: 1
                 },
                 1015: {
@@ -183,7 +183,15 @@
             //闪烁参数
             blinkRRate: 1.5,
             blinkBlur: 10,
-            blinkColor: 'red'
+            blinkColor: {
+                r: 255, g: 0, b: 0
+            },
+            textColor: {
+                r: 50, g: 50, b: 50
+            },
+
+            showAlpha: 1,
+            hideAlpha: 0.1
 
         }
     }();
@@ -214,63 +222,64 @@
              * 画地铁图
              */
             drawMap: function () {
+
+                //画线
                 for (var i in staPos) {
                     var centerX = RENDERER.getPoint(staPos[i].cx, centerPoint.cx);
                     var centerY = RENDERER.getPoint(staPos[i].cy, centerPoint.cy);
-                    //获取所在线路
-                    var lineIndex = staPos[i].id.substr(0, 4);
-                    //画线
-                    if (staPos[i].hasOwnProperty('nextId')) {
-                        var nextId = staPos[i].nextId;
-                        //算下一个点的坐标
-                        var nextCenterX = RENDERER.getPoint(staPos[nextId].cx, centerPoint.cx);
-                        var nextCenterY = RENDERER.getPoint(staPos[nextId].cy, centerPoint.cy);
-                        var drawLine = param.lineMode ? RENDERER.drawDBLine : RENDERER.drawLine;
-                        drawLine(
-                            RENDERER.cxt,
-                            centerX,
-                            centerY,
-                            nextCenterX,
-                            nextCenterY,
-                            param.lineWidth * param.rate,
-                            RENDERER.getLineColor(lineIndex),
-                            staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier : undefined);
-                        //终点 如果需要闭合
-                        if (staPos[i].hasOwnProperty('isEnd') && staPos[i].isEnd == 'true') {
-                            // 画点 换乘站
-                            if (staPos[nextId].transfer == 'true') {
-                                RENDERER.drawPoint(
-                                    RENDERER.cxt,
-                                    nextCenterX,
-                                    nextCenterY,
-                                    param.tranPointR * param.rate,
-                                    param.tranPointLWidth * param.rate,
-                                    param.tranPColor,
-                                    'rgba(0,0,0,' + param.colorList[lineIndex].a + ')')
-                            } else {//画点 非换乘站
-                                RENDERER.drawPoint(
-                                    RENDERER.cxt,
-                                    nextCenterX,
-                                    nextCenterY,
-                                    param.pointR * param.rate,
-                                    param.pointLWidth * param.rate,
-                                    param.pointColor,
-                                    RENDERER.getLineColor(lineIndex))
-                            }
+                    if (staPos[i].hasOwnProperty('nextId') && staPos[i].nextId.length != 0) {
+                        for (var nextIndex = 0; nextIndex < staPos[i].nextId.length; nextIndex++) {
+
+                            var nextId = staPos[i].nextId[nextIndex];
+                            //获取所在线路
+                            var lineIndex = staPos[i].lineId[nextIndex];
+                            var bezier = undefined;
+                            //算下一个点的坐标
+                            var nextCenterX = RENDERER.getPoint(staPos[nextId].cx, centerPoint.cx);
+                            var nextCenterY = RENDERER.getPoint(staPos[nextId].cy, centerPoint.cy);
+                            var drawLine = param.lineMode ? RENDERER.drawDBLine : RENDERER.drawLine;
+                            drawLine(
+                                RENDERER.cxt,
+                                centerX,
+                                centerY,
+                                nextCenterX,
+                                nextCenterY,
+                                param.lineWidth * param.rate,
+                                RENDERER.getLineColor(lineIndex),
+                                staPos[i].hasOwnProperty('bezier') ? staPos[i].bezier[nextIndex] : undefined);
                         }
                     }
+                }
+                // 画点
+                for (i in staPos) {
+                    //获取所在线路
+                    lineIndex = staPos[i].lineId[0];
+                    centerX = RENDERER.getPoint(staPos[i].cx, centerPoint.cx);
+                    centerY = RENDERER.getPoint(staPos[i].cy, centerPoint.cy);
+
+                    var nameX = RENDERER.getPoint(staPos[i].namePoint.x, parseInt(centerPoint.cx) + 10);
+                    var nameY = RENDERER.getPoint(staPos[i].namePoint.y, centerPoint.cy);
+
+                    var alpha = param.hideAlpha;
+                    for (var li = 0; li < staPos[i].lineId.length; li++) {
+                        if (param.colorList[staPos[i].lineId[li]].a == param.showAlpha) {
+                            alpha = param.showAlpha;
+                            break;
+                        }
+
+                    }
                     // 画点 换乘站
-                    if (staPos[i].transfer == 'true') {
+                    if (staPos[i].transfer) {
                         if (staPos[i].hasOwnProperty('isBusy') && staPos[i].isBusy == true) {
                             //闪烁点
                             RENDERER.drawBlinkPoint(
                                 RENDERER.cxt,
                                 centerX,
                                 centerY,
-                                param.tranPointR * param.rate ,
+                                param.tranPointR * param.rate,
                                 param.tranPointLWidth * param.rate,
-                                param.blinkColor,
-                                param.blinkColor,
+                                RENDERER.getColor(param.blinkColor, alpha),
+                                RENDERER.getColor(param.blinkColor, alpha),
                                 staPos[i]);
                         } else {
                             RENDERER.drawPoint(
@@ -280,8 +289,16 @@
                                 param.tranPointR * param.rate,
                                 param.tranPointLWidth * param.rate,
                                 param.tranPColor,
-                                'rgba(50,50,50,' + param.colorList[lineIndex].a + ')')
+                                'rgba(0,0,0,' + alpha + ')')
                         }
+                        RENDERER.drawText(
+                            RENDERER.cxt,
+                            nameX,
+                            nameY,
+                            staPos[i].name,
+                            RENDERER.getColor(param.textColor,alpha),
+                            param.baseFont * param.rate);
+
                     } else {
                         //画点 非换乘站
                         if (staPos[i].hasOwnProperty('isBusy') && staPos[i].isBusy == true) {
@@ -292,7 +309,7 @@
                                 centerY,
                                 param.pointR * param.rate * param.blinkRRate,
                                 param.pointLWidth * param.rate,
-                                param.blinkColor,
+                                RENDERER.getColor(param.blinkColor, param.colorList[lineIndex].a),
                                 RENDERER.getLineColor(lineIndex),
                                 staPos[i]);
                         } else {
@@ -306,16 +323,14 @@
                                 param.pointColor,
                                 RENDERER.getLineColor(lineIndex));
                         }
+                        RENDERER.drawText(
+                            RENDERER.cxt,
+                            nameX,
+                            nameY,
+                            staPos[i].name,
+                            RENDERER.getColor(param.textColor,param.colorList[lineIndex].a),
+                            param.baseFont * param.rate);
                     }
-                    var nameX = RENDERER.getPoint(staPos[i].namePoint.x, parseInt(centerPoint.cx) + 10);
-                    var nameY = RENDERER.getPoint(staPos[i].namePoint.y, centerPoint.cy);
-                    RENDERER.drawText(
-                        RENDERER.cxt,
-                        nameX,
-                        nameY,
-                        staPos[i].name,
-                        'rgba(50,50,50,' + param.colorList[lineIndex].a + ')',
-                        param.baseFont * param.rate);
                 }
             },
             /***
@@ -606,6 +621,10 @@
             setCanvasSize: function (rate) {
                 $('#myCanvas').attr('width', param.canvasWidth * rate);
                 $('#myCanvas').attr('height', param.canvasHeight * rate);
+            },
+            getColor: function (color, a) {
+                return 'rgba(' + color.r + ',' + color.g + ',' + color.b + ',' + a + ')';
+
             }
         }
     }();
@@ -627,10 +646,10 @@
         var hasChoose = false;
         for (var i in param.colorList) {
             if (chooseLineList.hasOwnProperty(i) && chooseLineList[i] == 1) {
-                param.colorList[i].a = '1';
+                param.colorList[i].a = param.showAlpha;
                 hasChoose = true;
             } else {
-                param.colorList[i].a = '0.1';
+                param.colorList[i].a = param.hideAlpha;
             }
         }
         if (!hasChoose) {
@@ -718,8 +737,85 @@
     //        colorList[1001].a = 1;
     //        colorList[1002].a = 1
     //    }, 2000);
-//    stationPoint['s_1001002'].isBusy = true;
-//    stationPoint['s_1001014'].isBusy = true;
-//    stationPoint['s_1004018'].isBusy = true;
+    pointUnique['s_1001002'].isBusy = true;
+    pointUnique['s_1001014'].isBusy = true;
+    pointUnique['s_1001013'].isBusy = true;
+    pointUnique['s_1005009'].isBusy = true;
+    pointUnique['s_1001018'].isBusy = true;
+    pointUnique['s_1004015'].isBusy = true;
+    pointUnique['s_1002019'].isBusy = true;
+    pointUnique['s_1002006'].isBusy = true;
+
+    pointUnique['s_1001021'].isBusy = true;
+    pointUnique['s_1006014'].isBusy = true;
+    pointUnique['s_1002014'].isBusy = true;
+    pointUnique['s_1002010'].isBusy = true;
+
+    //    console.log('dsdsdsdd')
+    //        for (var i in stationPoint) {
+    //            if (stationPoint[i].transfer == 'false') {
+    //                stationPoint[i].transfer = false;
+    //                if (stationPoint[i].hasOwnProperty('nextId')) {
+    //                    stationPoint[i].nextId = new Array(stationPoint[i].nextId);
+    //                }
+    //                if (stationPoint[i].hasOwnProperty('bezier')) {
+    //                    stationPoint[i].bezier = new Array(stationPoint[i].bezier);
+    //                }
+    //            } else {
+    //                stationPoint[i].transfer = true;
+    //                var nextList = [];
+    //                var bezierList = [];
+    //                if (stationPoint[i].hasOwnProperty('bezier')) {
+    //                    bezierList.push(stationPoint[i].bezier);
+    //                } else {
+    //                    bezierList.push(null);
+    //                }
+    //                if (stationPoint[i].hasOwnProperty('nextId')) {
+    //                    nextList.push(stationPoint[i].nextId);
+    //                }
+    //                for (var j in stationPoint) {
+    //                    if (stationPoint[i].name == stationPoint[j].name && stationPoint[i].id != stationPoint[j].id) {
+    //                        if (stationPoint[j].hasOwnProperty('nextId')) {
+    //                            nextList.push(stationPoint[j].nextId);
+    //                        }
+    //                        if (stationPoint[j].hasOwnProperty('bezier')) {
+    //                            bezierList.push(stationPoint[j].bezier);
+    //                        } else {
+    //                            bezierList.push(null);
+    //                        }
+    //                        delete stationPoint[j];
+    //                    }
+    //                }
+    //                if (stationPoint[i].hasOwnProperty('nextId')) {
+    //                    stationPoint[i].nextId = nextList;
+    //                }
+    //                if (stationPoint[i].hasOwnProperty('bezier')) {
+    //                    stationPoint[i].bezier = bezierList;
+    //                }
+    //            }
+    //        }
+    //    for (var i in pointUnique) {
+    //        pointUnique[i].lineId = [];
+    //        if (!pointUnique[i].transfer) {
+    //            pointUnique[i].lineId.push(pointUnique[i].id.substr(0, 4));
+    //        } else {
+    //            if (pointUnique[i].hasOwnProperty('nextId')) {
+    //                for (var j = 0; j < pointUnique[i].nextId.length; j++) {
+    //                    try {
+    //                        pointUnique[i].lineId.push(pointUnique[pointUnique[i].nextId[j]].id.substr(0, 4))
+    //                    } catch (e) {
+    //                        console.log(i)
+    //                        console.log(pointUnique[i])
+    //                        console.log(pointUnique[i].nextId[j])
+    //                        console.log(i)
+    //                    }
+    //
+    //                }
+    //            }
+    //        }
+    //
+    //    }
+    //
+    //    console.log(JSON.stringify(pointUnique))
 
 </script>
