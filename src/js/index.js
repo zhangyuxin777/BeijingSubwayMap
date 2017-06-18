@@ -3,7 +3,7 @@
  */
 
 import $ from 'jquery'
-import point from '../js/pointUnique'
+import point from './pointUnique'
 import '../css/index.css';
 (function ($, staPos, centerPoint) {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
