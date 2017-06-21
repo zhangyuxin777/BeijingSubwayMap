@@ -1,7 +1,7 @@
 # BeijingSubwayMap
-> 用 canvas做的北京地铁图
-> 支持放大缩小  单线显示等
-> 闪烁的点
+> 用 canvas做的北京地铁图,支持放大缩小  单线显示等
+
+> 闪烁的点,是动画的示例
 
 > [在线预览](https://zhangyuxin777.github.io/BeijingSubwayMap/out/index.html)
 
